@@ -47,7 +47,7 @@ export default function ResultPage() {
   // loanResult가 아직 계산되지 않았으면 로딩 상태
   if (!loanResult) {
     return (
-      <main className="mx-auto max-w-lg px-5 pb-12">
+      <main className="pb-12">
         <StepIndicator currentStep={2} />
         <div className="flex items-center justify-center py-20">
           <p className="text-secondary">계산 중...</p>

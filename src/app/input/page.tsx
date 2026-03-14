@@ -8,7 +8,7 @@ import InputSummary from "@/components/input/InputSummary";
 
 export default function InputPage() {
   return (
-    <main className="mx-auto max-w-lg px-5 pb-12">
+    <main className="pb-12">
       <StepIndicator currentStep={1} />
 
       <div className="mt-4 mb-10">
