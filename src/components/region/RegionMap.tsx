@@ -6,7 +6,7 @@ import { Button } from "@/components/common";
 import { useHousePinStore } from "@/store/useHousePinStore";
 import { SIGUNGU_MAP, SIDO_LIST, MAX_REGION_COUNT } from "@/constants/regions";
 
-const KAKAO_APP_KEY = process.env.NEXT_PUBLIC_KAKAO_APP_KEY;
+const KAKAO_APP_KEY = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
 
 // 서울 중심 좌표
 const SEOUL_CENTER = { lat: 37.5665, lng: 126.978 };
@@ -128,7 +128,7 @@ export default function RegionMap() {
           카카오맵 API 키를 설정해주세요
         </p>
         <p className="mt-2 text-sm text-secondary">
-          .env.local 파일에 NEXT_PUBLIC_KAKAO_APP_KEY를 추가하세요
+          .env.local 파일에 NEXT_PUBLIC_KAKAO_JS_KEY를 추가하세요
         </p>
       </div>
     );

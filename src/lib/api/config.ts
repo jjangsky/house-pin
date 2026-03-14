@@ -7,27 +7,27 @@
  * 아파트/연립다세대/단독다가구/오피스텔 실거래가 + 건축물대장
  */
 const MOLIT = {
-  BASE_URL: 'http://openapi.molit.go.kr',
+  BASE_URL: 'https://apis.data.go.kr/1613000',
   ENDPOINTS: {
     // 아파트
-    APT_TRADE: '/OpenAPI_ToolInstall498/service/rest/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev',
-    APT_RENT: '/OpenAPI_ToolInstall498/service/rest/RTMSDataSvcAptRentDev/getRTMSDataSvcAptRentDev',
+    APT_TRADE: '/RTMSDataSvcAptTrade/getRTMSDataSvcAptTrade',
+    APT_RENT: '/RTMSDataSvcAptRent/getRTMSDataSvcAptRent',
 
     // 연립다세대
-    MULTI_HOUSE_TRADE: '/OpenAPI_ToolInstall498/service/rest/RTMSDataSvcRHTradeDev/getRTMSDataSvcRHTradeDev',
-    MULTI_HOUSE_RENT: '/OpenAPI_ToolInstall498/service/rest/RTMSDataSvcRHRentDev/getRTMSDataSvcRHRentDev',
+    MULTI_HOUSE_TRADE: '/RTMSDataSvcRHTrade/getRTMSDataSvcRHTrade',
+    MULTI_HOUSE_RENT: '/RTMSDataSvcRHRent/getRTMSDataSvcRHRent',
 
     // 단독/다가구
-    SINGLE_HOUSE_TRADE: '/OpenAPI_ToolInstall498/service/rest/RTMSDataSvcSHTradeDev/getRTMSDataSvcSHTradeDev',
-    SINGLE_HOUSE_RENT: '/OpenAPI_ToolInstall498/service/rest/RTMSDataSvcSHRentDev/getRTMSDataSvcSHRentDev',
+    SINGLE_HOUSE_TRADE: '/RTMSDataSvcSHTrade/getRTMSDataSvcSHTrade',
+    SINGLE_HOUSE_RENT: '/RTMSDataSvcSHRent/getRTMSDataSvcSHRent',
 
     // 오피스텔
-    OFFICETEL_TRADE: '/OpenAPI_ToolInstall498/service/rest/RTMSDataSvcOffiTradeDev/getRTMSDataSvcOffiTradeDev',
-    OFFICETEL_RENT: '/OpenAPI_ToolInstall498/service/rest/RTMSDataSvcOffiRentDev/getRTMSDataSvcOffiRentDev',
+    OFFICETEL_TRADE: '/RTMSDataSvcOffiTrade/getRTMSDataSvcOffiTrade',
+    OFFICETEL_RENT: '/RTMSDataSvcOffiRent/getRTMSDataSvcOffiRent',
 
     // 건축물대장
-    BUILDING_TITLE: '/OpenAPI_ToolInstall498/service/rest/ArchPmsService_v2/getBrTitleInfo',
-    BUILDING_EXPOSE: '/OpenAPI_ToolInstall498/service/rest/ArchPmsService_v2/getBrExposPubuseAreaInfo',
+    BUILDING_TITLE: '/BldRgstHubService/getBrTitleInfo',
+    BUILDING_EXPOSE: '/BldRgstHubService/getBrExposPubuseAreaInfo',
   },
 } as const;
 

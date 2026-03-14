@@ -33,7 +33,7 @@ export default function PropertyMap({ properties, affordablePrice }: PropertyMap
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const kakaoKey = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY;
+    const kakaoKey = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
     if (!kakaoKey) {
       setHasKakaoKey(false);
       return;
@@ -108,7 +108,7 @@ export default function PropertyMap({ properties, affordablePrice }: PropertyMap
       <div className="flex flex-col items-center justify-center rounded-[16px] bg-surface py-20 px-6">
         <p className="text-base font-semibold text-primary">지도를 사용할 수 없습니다</p>
         <p className="mt-1 text-sm text-secondary text-center">
-          카카오맵 API 키를 환경변수(NEXT_PUBLIC_KAKAO_MAP_KEY)에 설정하면
+          카카오맵 API 키를 환경변수(NEXT_PUBLIC_KAKAO_JS_KEY)에 설정하면
           <br />
           지도 뷰를 이용할 수 있습니다
         </p>

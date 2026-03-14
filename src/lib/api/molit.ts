@@ -37,23 +37,24 @@ const xmlParser = new XMLParser({
   trimValues: true,
 });
 
-/** 한글 필드명 -> 영문 필드명 매핑 */
+/** 새 API 영문 필드명 */
 interface RawItem {
-  거래금액?: string;
-  건축년도?: number;
-  년?: number;
-  월?: number;
-  일?: number;
-  법정동?: string;
-  아파트?: string;
-  연립다세대?: string;
-  단지?: string;
-  전용면적?: number;
-  층?: number;
-  지번?: string;
-  지역코드?: string;
-  해제여부?: string;
-  거래유형?: string;
+  dealAmount?: string;
+  buildYear?: number;
+  dealYear?: number;
+  dealMonth?: number;
+  dealDay?: number;
+  umdNm?: string;        // 법정동
+  aptNm?: string;        // 아파트명
+  excluUseAr?: number;   // 전용면적
+  floor?: number;
+  jibun?: string;
+  sggCd?: string;        // 지역코드
+  cdealType?: string;    // 해제여부
+  dealingGbn?: string;   // 거래유형
+  // 연립다세대/오피스텔용
+  mhouseNm?: string;     // 연립다세대명
+  offiNm?: string;       // 오피스텔명
 }
 
 /**
@@ -70,19 +71,19 @@ function parseDealAmount(raw: string | undefined): number {
  */
 function mapRawItem(item: RawItem, fallbackRegionCode: string): RealEstateTransaction {
   return {
-    dealAmount: parseDealAmount(item.거래금액),
-    buildYear: Number(item.건축년도) || 0,
-    dealYear: Number(item.년) || 0,
-    dealMonth: Number(item.월) || 0,
-    dealDay: Number(item.일) || 0,
-    dong: String(item.법정동 ?? '').trim(),
-    aptName: String(item.아파트 ?? item.연립다세대 ?? item.단지 ?? '').trim(),
-    area: Number(item.전용면적) || 0,
-    floor: Number(item.층) || 0,
-    jibun: String(item.지번 ?? '').trim(),
-    regionCode: String(item.지역코드 ?? fallbackRegionCode).trim(),
-    cancelDealType: String(item.해제여부 ?? '').trim(),
-    dealType: String(item.거래유형 ?? '').trim(),
+    dealAmount: parseDealAmount(item.dealAmount),
+    buildYear: Number(item.buildYear) || 0,
+    dealYear: Number(item.dealYear) || 0,
+    dealMonth: Number(item.dealMonth) || 0,
+    dealDay: Number(item.dealDay) || 0,
+    dong: String(item.umdNm ?? '').trim(),
+    aptName: String(item.aptNm ?? item.mhouseNm ?? item.offiNm ?? '').trim(),
+    area: Number(item.excluUseAr) || 0,
+    floor: Number(item.floor) || 0,
+    jibun: String(item.jibun ?? '').trim(),
+    regionCode: String(item.sggCd ?? fallbackRegionCode).trim(),
+    cancelDealType: String(item.cdealType ?? '').trim(),
+    dealType: String(item.dealingGbn ?? '').trim(),
   };
 }
 
@@ -125,14 +126,11 @@ async function fetchMolitData(
     return MOCK_APT_TRADE;
   }
 
-  const baseUrl = `${API_CONFIG.MOLIT.BASE_URL}${endpoint}`;
-  const url = new URL(baseUrl);
-  url.searchParams.set('serviceKey', encodeURIComponent(apiKey));
-  url.searchParams.set('LAWD_CD', regionCode);
-  url.searchParams.set('DEAL_YMD', dealYM);
+  const requestUrl = `${API_CONFIG.MOLIT.BASE_URL}${endpoint}?serviceKey=${apiKey}&LAWD_CD=${regionCode}&DEAL_YMD=${dealYM}&numOfRows=1000`;
 
-  const response = await fetch(url.toString(), {
+  const response = await fetch(requestUrl, {
     next: { revalidate: 3600 },
+    headers: { 'User-Agent': 'Mozilla/5.0 house-pin/1.0' },
   });
 
   if (!response.ok) {

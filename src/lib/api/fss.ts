@@ -161,6 +161,7 @@ async function fetchFssLoanProducts(
 
     const response = await fetch(url.toString(), {
       next: { revalidate: 86400 },
+      headers: { 'User-Agent': 'Mozilla/5.0 house-pin/1.0' },
     });
 
     if (!response.ok) {

@@ -1,0 +1,6 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 지붕 (삼각형) -->
+  <path d="M256 80L60 260H120V420H392V260H452L256 80Z" fill="#3182F6"/>
+  <!-- 창문 (정사각형, 흰색) -->
+  <rect x="210" y="220" width="92" height="92" rx="8" fill="white"/>
+</svg>

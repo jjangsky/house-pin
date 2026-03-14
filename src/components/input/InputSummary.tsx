@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 
-import { Card, Badge, Button } from "@/components/common";
+import { Card, Badge, Button, Modal } from "@/components/common";
 import { formatToKoreanWon } from "@/lib/utils/format";
 import { validateAssetInput } from "@/lib/utils/validation";
 import { useHousePinStore } from "@/store/useHousePinStore";
@@ -23,7 +23,12 @@ interface SummaryRow {
   value: string;
 }
 
-export default function InputSummary() {
+interface InputSummaryProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function InputSummary({ isOpen, onClose }: InputSummaryProps) {
   const router = useRouter();
   const assetInput = useHousePinStore((state) => state.assetInput);
 
@@ -95,71 +100,64 @@ export default function InputSummary() {
     return items;
   }, [assetInput]);
 
-  const handleEdit = () => {
-    const section = document.getElementById("asset-form-section");
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   const handleCalculate = () => {
     router.push("/result");
   };
 
   return (
-    <section aria-label="입력 요약" className="flex flex-col gap-4">
-      <h2 className="text-lg font-semibold text-primary">입력 요약</h2>
+    <Modal isOpen={isOpen} onClose={onClose} title="입력 요약">
+      <div className="flex flex-col gap-4">
+        <Card>
+          <dl className="flex flex-col gap-4">
+            {rows.map((row) => (
+              <div
+                key={row.label}
+                className="flex items-center justify-between"
+              >
+                <dt className="text-sm text-secondary">{row.label}</dt>
+                <dd className="text-base font-bold text-primary">
+                  {row.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </Card>
 
-      <Card>
-        <dl className="flex flex-col gap-4">
-          {rows.map((row) => (
-            <div
-              key={row.label}
-              className="flex items-center justify-between"
-            >
-              <dt className="text-sm text-secondary">{row.label}</dt>
-              <dd className="text-base font-bold text-primary">
-                {row.value}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </Card>
+        {errorMessages.length > 0 && (
+          <div className="flex flex-col gap-2" role="alert">
+            {errorMessages.map((error) => (
+              <Badge key={error} variant="danger">
+                {error}
+              </Badge>
+            ))}
+          </div>
+        )}
 
-      {errorMessages.length > 0 && (
-        <div className="flex flex-col gap-2" role="alert">
-          {errorMessages.map((error) => (
-            <Badge key={error} variant="danger">
-              {error}
-            </Badge>
-          ))}
+        {validationResult.warnings.length > 0 && (
+          <div className="flex flex-col gap-2" role="status">
+            {validationResult.warnings.map((warning) => (
+              <Badge key={warning} variant="warning">
+                {warning}
+              </Badge>
+            ))}
+          </div>
+        )}
+
+        <div className="flex gap-3 mt-2">
+          <Button variant="secondary" size="lg" onClick={onClose}>
+            수정하기
+          </Button>
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            onClick={handleCalculate}
+            disabled={!validationResult.isValid}
+          >
+            계산하기
+          </Button>
         </div>
-      )}
-
-      {validationResult.warnings.length > 0 && (
-        <div className="flex flex-col gap-2" role="alert">
-          {validationResult.warnings.map((warning) => (
-            <Badge key={warning} variant="warning">
-              {warning}
-            </Badge>
-          ))}
-        </div>
-      )}
-
-      <div className="flex gap-3 mt-2">
-        <Button variant="secondary" size="lg" onClick={handleEdit}>
-          수정하기
-        </Button>
-        <Button
-          variant="primary"
-          size="lg"
-          fullWidth
-          onClick={handleCalculate}
-          disabled={!validationResult.isValid}
-        >
-          계산하기
-        </Button>
       </div>
-    </section>
+    </Modal>
   );
 }

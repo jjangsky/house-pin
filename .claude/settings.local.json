@@ -16,7 +16,17 @@
       "Bash(git push:*)",
       "Bash(ls:*)",
       "Bash(pnpm:*)",
-      "Bash(gh pr:*)"
+      "Bash(gh pr:*)",
+      "Bash(sleep:*)",
+      "WebFetch(domain:www.data.go.kr)",
+      "Bash(source:*)",
+      "Bash(pkill:*)",
+      "Bash(curl:*)",
+      "Bash(gh issue:*)",
+      "WebFetch(domain:developers.kakao.com)",
+      "Read(//Users/kc/.claude/**)",
+      "Bash(echo:*)",
+      "Bash(export:*)"
     ]
   }
 }
