@@ -27,3 +27,29 @@ export function formatToKoreanWon(amount: number): string {
 export function formatWithComma(value: number): string {
   return value.toLocaleString('ko-KR');
 }
+
+/**
+ * m² → 평 변환 (1평 = 3.3058m²)
+ * 소수 첫째자리까지 반올림
+ */
+export function sqmToPyeong(sqm: number): number {
+  return Math.round((sqm / 3.3058) * 10) / 10;
+}
+
+/**
+ * 현재 날짜 기준 최근 N개월 YYYYMM 목록 생성
+ * 예: getRecentMonths(6) → ['202603', '202602', '202601', '202512', '202511', '202510']
+ */
+export function getRecentMonths(count: number): string[] {
+  const now = new Date();
+  const months: string[] = [];
+
+  for (let i = 0; i < count; i++) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    months.push(`${year}${month}`);
+  }
+
+  return months;
+}
