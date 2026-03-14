@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init:*)",
+      "Bash(open:*)",
+      "WebSearch",
+      "Bash(gh repo:*)",
+      "Bash(git add:*)",
+      "Bash(npx:*)",
+      "Bash(mkdir /tmp/house-pin-init)",
+      "Read(//tmp/**)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm build:*)",
+      "Bash(git checkout:*)",
+      "Bash(pnpm add:*)",
+      "Bash(git push:*)",
+      "Bash(ls:*)",
+      "Bash(pnpm:*)",
+      "Bash(gh pr:*)"
+    ]
+  }
+}

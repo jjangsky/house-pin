@@ -4,7 +4,7 @@ import { Button } from "@/components/common";
 
 export default function Home() {
   return (
-    <section className="flex flex-1 flex-col items-center justify-center px-5 py-20">
+    <section className="flex flex-1 flex-col items-center justify-center py-20">
       <h1 className="text-center text-2xl font-bold leading-snug text-primary sm:text-[32px] sm:leading-tight">
         내 자산으로 살 수 있는 집,
         <br />

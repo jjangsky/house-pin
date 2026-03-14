@@ -117,7 +117,7 @@ export default function PropertiesPage() {
   }
 
   return (
-    <main className="mx-auto max-w-lg px-5 pb-12">
+    <main className="pb-12">
       <StepIndicator currentStep={4} />
 
       <div className="mt-4 mb-6">

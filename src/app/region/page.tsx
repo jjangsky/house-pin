@@ -22,7 +22,7 @@ export default function RegionPage() {
   const hasRegions = selectedRegions.length > 0;
 
   return (
-    <main className="mx-auto max-w-lg px-5 pb-12">
+    <main className="pb-12">
       <StepIndicator currentStep={3} />
 
       <div className="mt-4 mb-8">
