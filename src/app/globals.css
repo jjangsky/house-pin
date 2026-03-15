@@ -107,3 +107,110 @@ body {
   outline-offset: 4px;
   border-radius: 3px;
 }
+
+/* Landing page full-width breakout */
+.landing-full-width {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Scroll animations */
+.scroll-hidden {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.scroll-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Typing cursor blink */
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Float animation for scroll indicator */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+
+.animate-float {
+  animation: float 2s ease-in-out infinite;
+}
+
+/* CTA section animations */
+.cta-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cta-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.cta-float-pin {
+  animation: cta-float 3s ease-in-out infinite;
+}
+
+@keyframes cta-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.cta-pulse-btn {
+  animation: cta-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes cta-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(49, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(49, 130, 246, 0);
+  }
+}
+
+.cta-pulse-btn:hover {
+  transform: scale(1.04);
+  box-shadow: 0 8px 24px rgba(49, 130, 246, 0.35);
+  animation: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* CTA map pin ping */
+.cta-ping {
+  animation: cta-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes cta-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  75%, 100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
