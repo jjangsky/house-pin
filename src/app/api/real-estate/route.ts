@@ -12,6 +12,8 @@ import {
   fetchOfficeTrade,
 } from '@/lib/api/molit';
 import type { RealEstateTransaction } from '@/lib/api/molit';
+import { batchGeocode, buildAddress } from '@/lib/api/kakao';
+import { getRegionBySigunguCode } from '@/constants/regions';
 
 type TradeType = 'apt' | 'apt-rent' | 'villa' | 'officetel';
 
@@ -77,13 +79,34 @@ export async function GET(request: NextRequest) {
       (tx) => tx.cancelDealType !== 'O' && tx.cancelDealType !== 'Y',
     );
 
+    // 지오코딩: 법정동 + 지번 주소를 좌표로 변환
+    const regionInfo = getRegionBySigunguCode(regionCode);
+    const sigunguName = regionInfo
+      ? `${regionInfo.sido} ${regionInfo.sigungu}`
+      : '';
+
+    const geocodeTargets = validTransactions.map((tx) => ({
+      address: buildAddress(sigunguName, tx.dong, tx.jibun),
+    }));
+
+    const coordsMap = await batchGeocode(geocodeTargets);
+
+    const geocodedTransactions = validTransactions.map((tx) => {
+      const address = buildAddress(sigunguName, tx.dong, tx.jibun);
+      const coords = coordsMap.get(address);
+      if (coords) {
+        return { ...tx, lat: coords.lat, lng: coords.lng };
+      }
+      return tx;
+    });
+
     return NextResponse.json({
-      data: validTransactions,
+      data: geocodedTransactions,
       meta: {
         regionCode,
         dealYM,
         type,
-        totalCount: validTransactions.length,
+        totalCount: geocodedTransactions.length,
       },
     });
   } catch (error) {

@@ -26,6 +26,8 @@ export interface RealEstateTransaction {
   regionCode: string;
   cancelDealType: string;
   dealType: string;
+  lat?: number;
+  lng?: number;
 }
 
 // =============================================================================

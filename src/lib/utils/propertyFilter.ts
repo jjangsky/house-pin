@@ -89,5 +89,8 @@ export function toProperty(
     jibun: transaction.jibun,
     regionCode: transaction.regionCode,
     propertyType: type,
+    ...(transaction.lat != null && transaction.lng != null
+      ? { lat: transaction.lat, lng: transaction.lng }
+      : {}),
   };
 }
