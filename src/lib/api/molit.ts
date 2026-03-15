@@ -144,9 +144,11 @@ async function fetchMolitData(
     return MOCK_APT_TRADE;
   }
 
-  // URL 객체를 사용하여 API 키의 특수문자(+, =, / 등)를 안전하게 인코딩
+  // 공공데이터포털 API 키는 URL-encoded 상태(%2B 등)로 제공되므로
+  // 먼저 디코딩한 뒤 searchParams.set()이 다시 인코딩하도록 한다.
+  const decodedKey = decodeURIComponent(apiKey);
   const url = new URL(`${API_CONFIG.MOLIT.BASE_URL}${endpoint}`);
-  url.searchParams.set('serviceKey', apiKey);
+  url.searchParams.set('serviceKey', decodedKey);
   url.searchParams.set('LAWD_CD', regionCode);
   url.searchParams.set('DEAL_YMD', dealYM);
   url.searchParams.set('numOfRows', '1000');
