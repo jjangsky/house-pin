@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Card, Skeleton, Badge, Button } from "@/components/common";
 import { formatToKoreanWon } from "@/lib/utils/format";
 import { calculateMonthlyPayment } from "@/lib/calculation";
@@ -52,16 +52,19 @@ export default function BankComparisonTable({
   }, [rateFilter, sortOption]);
 
   useEffect(() => {
-    let cancelled = false;
+    const controller = new AbortController();
 
     async function fetchProducts() {
       setIsLoading(true);
       setError(null);
+      setRateFilter("all");
 
       try {
         const type =
           assetInput.transactionType === "jeonse" ? "rent" : "mortgage";
-        const res = await fetch(`/api/loan-products?type=${type}`);
+        const res = await fetch(`/api/loan-products?type=${type}`, {
+          signal: controller.signal,
+        });
 
         if (!res.ok) {
           throw new Error("대출 상품 데이터를 불러오지 못했습니다.");
@@ -69,26 +72,23 @@ export default function BankComparisonTable({
 
         const data = await res.json();
 
-        if (!cancelled) {
-          // banks 배열에서 products를 평탄화
-          const allProducts: BankLoanProduct[] = [];
-          for (const bank of data.banks ?? []) {
-            for (const product of bank.products ?? []) {
-              allProducts.push(product);
-            }
+        // banks 배열에서 products를 평탄화
+        const allProducts: BankLoanProduct[] = [];
+        for (const bank of data.banks ?? []) {
+          for (const product of bank.products ?? []) {
+            allProducts.push(product);
           }
-          setProducts(allProducts);
         }
+        setProducts(allProducts);
       } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "알 수 없는 오류가 발생했습니다.",
-          );
-        }
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        setError(
+          err instanceof Error
+            ? err.message
+            : "알 수 없는 오류가 발생했습니다.",
+        );
       } finally {
-        if (!cancelled) {
+        if (!controller.signal.aborted) {
           setIsLoading(false);
         }
       }
@@ -97,7 +97,7 @@ export default function BankComparisonTable({
     fetchProducts();
 
     return () => {
-      cancelled = true;
+      controller.abort();
     };
   }, [assetInput.transactionType]);
 
@@ -119,7 +119,6 @@ export default function BankComparisonTable({
 
       return {
         ...p,
-        calculatedLoanAmount: loanAmount,
         calculatedMonthlyPayment: monthly,
       };
     });
@@ -175,13 +174,58 @@ export default function BankComparisonTable({
     );
   }
 
+  const handleRetry = useCallback(() => {
+    setError(null);
+    setIsLoading(true);
+    const type =
+      assetInput.transactionType === "jeonse" ? "rent" : "mortgage";
+    fetch(`/api/loan-products?type=${type}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("대출 상품 데이터를 불러오지 못했습니다.");
+        return res.json();
+      })
+      .then((data) => {
+        const allProducts: BankLoanProduct[] = [];
+        for (const bank of data.banks ?? []) {
+          for (const product of bank.products ?? []) {
+            allProducts.push(product);
+          }
+        }
+        setProducts(allProducts);
+      })
+      .catch((err) => {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "알 수 없는 오류가 발생했습니다.",
+        );
+      })
+      .finally(() => setIsLoading(false));
+  }, [assetInput.transactionType]);
+
   if (error) {
     return (
       <Card>
         <h3 className="mb-2 text-lg font-semibold text-primary">
           은행별 금리 비교
         </h3>
-        <p className="text-sm text-danger">{error}</p>
+        <p className="mb-3 text-sm text-danger">{error}</p>
+        <Button variant="secondary" size="sm" onClick={handleRetry}>
+          다시 시도
+        </Button>
+      </Card>
+    );
+  }
+
+  if (loanAmount <= 0) {
+    return (
+      <Card>
+        <h3 className="mb-2 text-lg font-semibold text-primary">
+          은행별 금리 비교
+        </h3>
+        <p className="py-8 text-center text-sm text-secondary">
+          대출 금액을 설정하면 은행별 금리를 비교할 수 있어요.
+        </p>
       </Card>
     );
   }
@@ -251,7 +295,7 @@ export default function BankComparisonTable({
                   <th className="pb-3 font-medium">상품명</th>
                   <th className="pb-3 font-medium">금리유형</th>
                   <th className="pb-3 text-right font-medium">최저금리</th>
-                  <th className="pb-3 text-right font-medium">대출가능액</th>
+                  <th className="pb-3 text-right font-medium">대출한도</th>
                   <th className="pb-3 text-right font-medium">월상환액</th>
                 </tr>
               </thead>
@@ -274,7 +318,7 @@ export default function BankComparisonTable({
                       {p.minRate.toFixed(2)}%
                     </td>
                     <td className="py-4 text-right text-primary">
-                      {formatToKoreanWon(p.calculatedLoanAmount)}
+                      {p.loanLimit || "-"}
                     </td>
                     <td className="py-4 text-right font-semibold text-primary">
                       {formatToKoreanWon(p.calculatedMonthlyPayment)}
@@ -310,9 +354,9 @@ export default function BankComparisonTable({
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-secondary">대출가능액</span>
+                    <span className="text-secondary">대출한도</span>
                     <span className="text-primary">
-                      {formatToKoreanWon(p.calculatedLoanAmount)}
+                      {p.loanLimit || "-"}
                     </span>
                   </div>
                   <div className="flex justify-between">
