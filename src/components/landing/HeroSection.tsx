@@ -1,0 +1,106 @@
+"use client";
+
+import Image from "next/image";
+
+import useTypingAnimation from "@/hooks/useTypingAnimation";
+
+export default function HeroSection() {
+  const typedText = useTypingAnimation(
+    ["아파트", "오피스텔", "빌라", "내 첫 집"],
+    100,
+    50,
+    2200
+  );
+
+  const scrollToNext = () => {
+    const el = document.getElementById("how-it-works");
+    el?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  return (
+    <section className="landing-full-width relative flex min-h-[calc(100vh-56px)] flex-col items-center justify-center py-16">
+      <div className="mx-auto max-w-[640px] px-4 text-center">
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-accent-light px-4 py-2">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-accent" />
+          <span className="text-sm font-medium text-accent">
+            자산 기반 부동산 매물 추천
+          </span>
+        </div>
+
+        <h1 className="text-[28px] font-bold leading-snug text-primary sm:text-[40px] sm:leading-tight">
+          내 자산으로 살 수 있는
+          <br />
+          <span className="inline-block min-w-[120px] text-accent">
+            {typedText}
+            <span className="animate-blink">|</span>
+          </span>
+          <br />
+          <span className="text-primary">찾아보세요</span>
+        </h1>
+
+        <p className="mt-5 text-base leading-relaxed text-secondary sm:text-lg">
+          보유 자산과 대출 가능액을 분석해
+          <br className="sm:hidden" />
+          {" "}맞춤 매물을 추천합니다
+        </p>
+
+        {/* Hero illustration */}
+        <div className="mx-auto mt-10 max-w-[480px]">
+          <Image
+            src="/images/hero-illustration.png"
+            alt="하우스핀 서비스 일러스트레이션"
+            width={960}
+            height={540}
+            className="rounded-[16px]"
+            priority
+          />
+        </div>
+
+        <div className="mt-8 flex items-center justify-center gap-6 text-sm text-secondary">
+          <div className="flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path
+                d="M8 1l2.5 5 5.5.8-4 3.9.9 5.3L8 13.3 3.1 16l.9-5.3-4-3.9L5.5 6z"
+                fill="#3182F6"
+              />
+            </svg>
+            <span>금감원 공시 데이터</span>
+          </div>
+          <div className="h-3 w-px bg-border" />
+          <div className="flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path
+                d="M8 1l2.5 5 5.5.8-4 3.9.9 5.3L8 13.3 3.1 16l.9-5.3-4-3.9L5.5 6z"
+                fill="#3182F6"
+              />
+            </svg>
+            <span>국토부 실거래가</span>
+          </div>
+        </div>
+      </div>
+
+      <button
+        onClick={scrollToNext}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-secondary transition-colors hover:text-primary"
+        aria-label="아래로 스크롤"
+      >
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-xs">스크롤하여 알아보기</span>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="animate-float"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+      </button>
+    </section>
+  );
+}
