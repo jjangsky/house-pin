@@ -20,7 +20,19 @@ export default function PropertyCard({
     dealMonth,
     dealDay,
     dong,
+    propertyType,
   } = property;
+
+  const propertyTypeConfig: Record<string, { label: string; className: string }> = {
+    apartment: { label: "아파트", className: "bg-accent-light text-accent" },
+    villa: { label: "빌라", className: "bg-warning-light text-warning" },
+    officetel: { label: "오피스텔", className: "bg-[#F3EEFF] text-[#7B61FF]" },
+  };
+
+  const typeConfig = propertyTypeConfig[propertyType] ?? {
+    label: propertyType,
+    className: "bg-surface text-secondary",
+  };
 
   const diff = affordablePrice - dealAmount;
   const isAffordable = diff >= 0;
@@ -30,9 +42,14 @@ export default function PropertyCard({
   return (
     <Card className="flex flex-col gap-3">
       <div className="flex items-start justify-between gap-3">
-        <h3 className="text-base font-bold text-primary leading-snug">
-          {name}
-        </h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-base font-bold text-primary leading-snug">
+            {name}
+          </h3>
+          <span className={`shrink-0 rounded-[6px] px-2 py-0.5 text-xs font-semibold ${typeConfig.className}`}>
+            {typeConfig.label}
+          </span>
+        </div>
         <Badge variant={isAffordable ? "success" : "danger"}>
           {isAffordable ? "여유" : "부족"} {formatToKoreanWon(Math.abs(diff))}
         </Badge>
