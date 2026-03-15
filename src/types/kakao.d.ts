@@ -48,7 +48,9 @@ interface KakaoMaps {
   load: (callback: () => void) => void;
   LatLng: new (lat: number, lng: number) => KakaoLatLng;
   Map: new (container: HTMLElement, options: { center: KakaoLatLng; level: number }) => KakaoMap;
-  Marker: new (options: { map: any; position: any }) => KakaoMarker;
+  Size: new (width: number, height: number) => any;
+  MarkerImage: new (src: string, size: any) => any;
+  Marker: new (options: { map: any; position: any; image?: any }) => KakaoMarker;
   InfoWindow: new (options: { content: string; removable?: boolean }) => KakaoInfoWindow;
   Rectangle: new (options: {
     bounds: KakaoLatLngBounds;
