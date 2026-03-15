@@ -87,10 +87,15 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('[real-estate] API 호출 실패:', error);
-
     const message =
       error instanceof Error ? error.message : '실거래가 조회 중 오류가 발생했습니다.';
+    const stack = error instanceof Error ? error.stack : undefined;
+
+    console.error('[real-estate] API 호출 실패:', {
+      message,
+      stack,
+      params: { regionCode, dealYM, type },
+    });
 
     return NextResponse.json({ error: message }, { status: 500 });
   }

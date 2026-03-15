@@ -165,6 +165,8 @@ async function fetchFssLoanProducts(
     });
 
     if (!response.ok) {
+      const body = await response.text().catch(() => '(응답 본문 읽기 실패)');
+      console.error(`[fss] API 요청 실패: status=${response.status}, endpoint=${endpoint}, body=${body.substring(0, 500)}`);
       throw new Error(
         `금감원 API 요청 실패: ${response.status} ${response.statusText}`,
       );
