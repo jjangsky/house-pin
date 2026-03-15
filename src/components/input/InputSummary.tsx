@@ -143,10 +143,7 @@ export default function InputSummary({ isOpen, onClose }: InputSummaryProps) {
           </div>
         )}
 
-        <div className="flex gap-3 mt-2">
-          <Button variant="secondary" size="lg" onClick={onClose}>
-            수정하기
-          </Button>
+        <div className="mt-2">
           <Button
             variant="primary"
             size="lg"

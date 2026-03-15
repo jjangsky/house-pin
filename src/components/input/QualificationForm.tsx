@@ -4,7 +4,7 @@ import { useHousePinStore } from "@/store/useHousePinStore";
 import { Toggle, Select, Input } from "@/components/common";
 
 const HOMES_OPTIONS = [
-  { value: "0", label: "0주택" },
+  { value: "0", label: "무주택" },
   { value: "1", label: "1주택" },
   { value: "2", label: "2주택 이상" },
 ];

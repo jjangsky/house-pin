@@ -15,8 +15,6 @@ export function validateAssetInput(input: AssetInput): ValidationResult {
   // ownCapital: 필수, 양수, 1,000,000만원 이하
   if (input.ownCapital === undefined || input.ownCapital === null) {
     errors.ownCapital = '보유 자산을 입력해주세요';
-  } else if (input.ownCapital <= 0) {
-    errors.ownCapital = '보유 자산은 0보다 커야 합니다';
   } else if (input.ownCapital > MAX_OWN_CAPITAL) {
     errors.ownCapital = '보유 자산은 1,000억 원 이하로 입력해주세요';
   }
