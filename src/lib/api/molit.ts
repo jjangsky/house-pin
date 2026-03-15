@@ -158,7 +158,7 @@ async function fetchMolitData(
 
   const response = await fetch(requestUrl, {
     next: { revalidate: 3600 },
-    headers: { 'User-Agent': 'Mozilla/5.0 house-pin/1.0' },
+    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; house-pin/1.0)' },
   });
 
   if (!response.ok) {
@@ -171,8 +171,8 @@ async function fetchMolitData(
 
   const xml = await response.text();
 
-  // XML 응답에 에러 코드가 포함되어 있는지 확인
-  if (xml.includes('<resultCode>') && !xml.includes('<resultCode>00</resultCode>')) {
+  // XML 응답에 에러 코드가 포함되어 있는지 확인 (성공: "00" 또는 "000")
+  if (xml.includes('<resultCode>') && !xml.includes('<resultCode>00</resultCode>') && !xml.includes('<resultCode>000</resultCode>')) {
     console.error(`[molit] API 응답 에러: ${xml.substring(0, 500)}`);
     throw new Error(`국토부 API 응답 오류 (endpoint: ${endpoint})`);
   }
