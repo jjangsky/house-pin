@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Button } from "@/components/common";
+import { Button, Select } from "@/components/common";
 import type { Property } from "@/types";
 import PropertyCard from "./PropertyCard";
 
@@ -106,18 +106,13 @@ export default function PropertyList({
         <p className="text-sm text-secondary">
           총 <span className="font-semibold text-primary">{filtered.length}</span>건
         </p>
-        <select
-          value={sortKey}
-          onChange={(e) => setSortKey(e.target.value as SortKey)}
-          aria-label="정렬 기준"
-          className="appearance-none rounded-[8px] border border-border bg-white px-3 py-1.5 text-sm text-primary outline-none focus:border-accent"
-        >
-          {SORT_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+        <div className="w-[140px]">
+          <Select
+            options={SORT_OPTIONS}
+            value={sortKey}
+            onValueChange={(v) => setSortKey(v as SortKey)}
+          />
+        </div>
       </div>
 
       {/* 매물 리스트 또는 빈 상태 */}

@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useRef, useEffect, useCallback } from "react";
+
 interface SelectOption {
   value: string;
   label: string;
@@ -24,75 +26,177 @@ export default function Select({
   options,
   placeholder,
   value,
-  defaultValue,
-  onChange,
   onValueChange,
   name,
   id,
   disabled = false,
   className = "",
 }: SelectProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const selectId = id ?? name;
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onChange?.(e);
-    onValueChange?.(e.target.value);
-  };
+  const selectedOption = options.find((opt) => opt.value === value);
+  const displayText = selectedOption?.label ?? placeholder ?? "선택하세요";
+  const isPlaceholder = !selectedOption;
+
+  const handleToggle = useCallback(() => {
+    if (!disabled) setIsOpen((prev) => !prev);
+  }, [disabled]);
+
+  const handleSelect = useCallback(
+    (optionValue: string) => {
+      onValueChange?.(optionValue);
+      setIsOpen(false);
+    },
+    [onValueChange]
+  );
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (disabled) return;
+
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        setIsOpen((prev) => !prev);
+      } else if (e.key === "Escape") {
+        setIsOpen(false);
+      } else if (e.key === "ArrowDown" && isOpen) {
+        e.preventDefault();
+        const currentIndex = options.findIndex((opt) => opt.value === value);
+        const nextIndex = Math.min(currentIndex + 1, options.length - 1);
+        onValueChange?.(options[nextIndex].value);
+      } else if (e.key === "ArrowUp" && isOpen) {
+        e.preventDefault();
+        const currentIndex = options.findIndex((opt) => opt.value === value);
+        const prevIndex = Math.max(currentIndex - 1, 0);
+        onValueChange?.(options[prevIndex].value);
+      }
+    },
+    [disabled, isOpen, options, value, onValueChange]
+  );
+
+  // Close on outside click
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
 
   return (
-    <div className={`flex flex-col gap-2 ${className}`}>
+    <div className={`flex flex-col gap-2 ${className}`} ref={containerRef}>
       {label && (
-        <label
-          htmlFor={selectId}
-          className="text-sm font-medium text-primary"
-        >
+        <label htmlFor={selectId} className="text-sm font-medium text-primary">
           {label}
         </label>
       )}
       <div className="relative">
-        <select
+        {/* Trigger button */}
+        <button
+          type="button"
           id={selectId}
-          name={name}
-          value={value}
-          defaultValue={defaultValue}
-          onChange={handleChange}
+          role="combobox"
+          aria-expanded={isOpen}
+          aria-haspopup="listbox"
           disabled={disabled}
+          onClick={handleToggle}
+          onKeyDown={handleKeyDown}
           className={`
-            w-full appearance-none rounded-[12px] border border-border
-            bg-white px-4 py-3 pr-10 text-base text-primary
-            transition-colors duration-200
+            flex w-full items-center justify-between rounded-[12px] border
+            px-4 py-3 text-left text-base transition-all duration-200
             outline-none
-            focus:border-accent
-            disabled:cursor-not-allowed disabled:bg-surface disabled:text-secondary
+            ${
+              isOpen
+                ? "border-accent ring-2 ring-accent/10"
+                : "border-border hover:border-secondary"
+            }
+            ${isPlaceholder ? "text-secondary" : "text-primary"}
+            ${
+              disabled
+                ? "cursor-not-allowed bg-surface text-secondary"
+                : "cursor-pointer bg-white"
+            }
           `.trim()}
         >
-          {placeholder && (
-            <option value="" disabled hidden>
-              {placeholder}
-            </option>
-          )}
-          {options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-        <svg
-          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-secondary"
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M5 7.5L10 12.5L15 7.5"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+          <span className="truncate">{displayText}</span>
+          <svg
+            className={`shrink-0 text-secondary transition-transform duration-200 ${
+              isOpen ? "rotate-180" : ""
+            }`}
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M5 7.5L10 12.5L15 7.5"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+
+        {/* Dropdown */}
+        {isOpen && (
+          <ul
+            role="listbox"
+            className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-[12px] border border-border bg-white py-1 shadow-lg"
+          >
+            {options.map((option) => {
+              const isSelected = option.value === value;
+
+              return (
+                <li
+                  key={option.value}
+                  role="option"
+                  aria-selected={isSelected}
+                  onClick={() => handleSelect(option.value)}
+                  className={`
+                    flex cursor-pointer items-center justify-between px-4 py-3 text-base
+                    transition-colors duration-100
+                    ${
+                      isSelected
+                        ? "bg-accent-light text-accent font-medium"
+                        : "text-primary hover:bg-surface"
+                    }
+                  `.trim()}
+                >
+                  <span>{option.label}</span>
+                  {isSelected && (
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M3.5 8.5L6.5 11.5L12.5 4.5"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
     </div>
   );

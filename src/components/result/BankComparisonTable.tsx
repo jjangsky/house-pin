@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { Card, Skeleton, Badge, Button } from "@/components/common";
+import { Card, Skeleton, Badge, Button, Select } from "@/components/common";
 import { formatToKoreanWon } from "@/lib/utils/format";
 import { calculateMonthlyPayment } from "@/lib/calculation";
 import { useHousePinStore } from "@/store/useHousePinStore";
@@ -266,18 +266,16 @@ export default function BankComparisonTable({
           ))}
         </div>
 
-        <select
-          value={sortOption}
-          onChange={(e) => setSortOption(e.target.value as SortOption)}
-          aria-label="정렬 기준"
-          className="rounded-[12px] border border-border bg-white px-3 py-2 text-sm text-primary outline-none transition-colors duration-200 focus:border-accent"
-        >
-          {(Object.keys(SORT_LABELS) as SortOption[]).map((key) => (
-            <option key={key} value={key}>
-              {SORT_LABELS[key]}
-            </option>
-          ))}
-        </select>
+        <div className="w-[170px]">
+          <Select
+            options={(Object.keys(SORT_LABELS) as SortOption[]).map((key) => ({
+              value: key,
+              label: SORT_LABELS[key],
+            }))}
+            value={sortOption}
+            onValueChange={(v) => setSortOption(v as SortOption)}
+          />
+        </div>
       </div>
 
       {displayProducts.length === 0 ? (
