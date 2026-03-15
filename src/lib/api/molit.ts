@@ -37,8 +37,9 @@ const xmlParser = new XMLParser({
   trimValues: true,
 });
 
-/** 새 API 영문 필드명 */
+/** 새 API 영문 필드명 + 구 API 한글 필드명 폴백 */
 interface RawItem {
+  // 영문 필드명 (apis.data.go.kr)
   dealAmount?: string;
   buildYear?: number;
   dealYear?: number;
@@ -55,6 +56,23 @@ interface RawItem {
   // 연립다세대/오피스텔용
   mhouseNm?: string;     // 연립다세대명
   offiNm?: string;       // 오피스텔명
+
+  // 한글 필드명 폴백 (구 openapi.molit.go.kr)
+  '거래금액'?: string;
+  '건축년도'?: number;
+  '년'?: number;
+  '월'?: number;
+  '일'?: number;
+  '법정동'?: string;
+  '아파트'?: string;
+  '연립다세대'?: string;
+  '오피스텔'?: string;
+  '전용면적'?: number;
+  '층'?: number;
+  '지번'?: string;
+  '지역코드'?: string;
+  '해제여부'?: string;
+  '거래유형'?: string;
 }
 
 /**
@@ -71,19 +89,19 @@ function parseDealAmount(raw: string | undefined): number {
  */
 function mapRawItem(item: RawItem, fallbackRegionCode: string): RealEstateTransaction {
   return {
-    dealAmount: parseDealAmount(item.dealAmount),
-    buildYear: Number(item.buildYear) || 0,
-    dealYear: Number(item.dealYear) || 0,
-    dealMonth: Number(item.dealMonth) || 0,
-    dealDay: Number(item.dealDay) || 0,
-    dong: String(item.umdNm ?? '').trim(),
-    aptName: String(item.aptNm ?? item.mhouseNm ?? item.offiNm ?? '').trim(),
-    area: Number(item.excluUseAr) || 0,
-    floor: Number(item.floor) || 0,
-    jibun: String(item.jibun ?? '').trim(),
-    regionCode: String(item.sggCd ?? fallbackRegionCode).trim(),
-    cancelDealType: String(item.cdealType ?? '').trim(),
-    dealType: String(item.dealingGbn ?? '').trim(),
+    dealAmount: parseDealAmount(item.dealAmount ?? item['거래금액']),
+    buildYear: Number(item.buildYear ?? item['건축년도']) || 0,
+    dealYear: Number(item.dealYear ?? item['년']) || 0,
+    dealMonth: Number(item.dealMonth ?? item['월']) || 0,
+    dealDay: Number(item.dealDay ?? item['일']) || 0,
+    dong: String(item.umdNm ?? item['법정동'] ?? '').trim(),
+    aptName: String(item.aptNm ?? item['아파트'] ?? item.mhouseNm ?? item['연립다세대'] ?? item.offiNm ?? item['오피스텔'] ?? '').trim(),
+    area: Number(item.excluUseAr ?? item['전용면적']) || 0,
+    floor: Number(item.floor ?? item['층']) || 0,
+    jibun: String(item.jibun ?? item['지번'] ?? '').trim(),
+    regionCode: String(item.sggCd ?? item['지역코드'] ?? fallbackRegionCode).trim(),
+    cancelDealType: String(item.cdealType ?? item['해제여부'] ?? '').trim(),
+    dealType: String(item.dealingGbn ?? item['거래유형'] ?? '').trim(),
   };
 }
 
@@ -126,7 +144,15 @@ async function fetchMolitData(
     return MOCK_APT_TRADE;
   }
 
-  const requestUrl = `${API_CONFIG.MOLIT.BASE_URL}${endpoint}?serviceKey=${apiKey}&LAWD_CD=${regionCode}&DEAL_YMD=${dealYM}&numOfRows=1000`;
+  // URL 객체를 사용하여 API 키의 특수문자(+, =, / 등)를 안전하게 인코딩
+  const url = new URL(`${API_CONFIG.MOLIT.BASE_URL}${endpoint}`);
+  url.searchParams.set('serviceKey', apiKey);
+  url.searchParams.set('LAWD_CD', regionCode);
+  url.searchParams.set('DEAL_YMD', dealYM);
+  url.searchParams.set('numOfRows', '1000');
+  const requestUrl = url.toString();
+
+  console.log(`[molit] API 요청: endpoint=${endpoint}, regionCode=${regionCode}, dealYM=${dealYM}`);
 
   const response = await fetch(requestUrl, {
     next: { revalidate: 3600 },
@@ -134,13 +160,25 @@ async function fetchMolitData(
   });
 
   if (!response.ok) {
+    const body = await response.text().catch(() => '(응답 본문 읽기 실패)');
+    console.error(`[molit] API 요청 실패: status=${response.status}, body=${body.substring(0, 500)}`);
     throw new Error(
       `국토부 API 요청 실패: ${response.status} ${response.statusText}`,
     );
   }
 
   const xml = await response.text();
-  return parseXmlResponse(xml, regionCode);
+
+  // XML 응답에 에러 코드가 포함되어 있는지 확인
+  if (xml.includes('<resultCode>') && !xml.includes('<resultCode>00</resultCode>')) {
+    console.error(`[molit] API 응답 에러: ${xml.substring(0, 500)}`);
+    throw new Error(`국토부 API 응답 오류 (endpoint: ${endpoint})`);
+  }
+
+  const results = parseXmlResponse(xml, regionCode);
+  console.log(`[molit] 조회 완료: ${results.length}건 (regionCode=${regionCode}, dealYM=${dealYM})`);
+
+  return results;
 }
 
 // =============================================================================

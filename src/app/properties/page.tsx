@@ -29,7 +29,13 @@ async function fetchPropertiesForRegion(
 ): Promise<RealEstateTransaction[]> {
   const url = `/api/real-estate?regionCode=${regionCode}&dealYM=${dealYM}&type=${fetchType}`;
   const res = await fetch(url);
-  if (!res.ok) return [];
+  if (!res.ok) {
+    const errorBody = await res.text().catch(() => '(응답 읽기 실패)');
+    console.error(
+      `[properties] API 호출 실패: status=${res.status}, regionCode=${regionCode}, dealYM=${dealYM}, type=${fetchType}, body=${errorBody.substring(0, 300)}`
+    );
+    return [];
+  }
   const json = await res.json();
   return json.data ?? [];
 }
