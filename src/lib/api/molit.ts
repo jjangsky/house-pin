@@ -144,9 +144,11 @@ async function fetchMolitData(
     return MOCK_APT_TRADE;
   }
 
-  // URL 객체를 사용하여 API 키의 특수문자(+, =, / 등)를 안전하게 인코딩
+  // 공공데이터포털 API 키는 URL-encoded 상태(%2B 등)로 제공되므로
+  // 먼저 디코딩한 뒤 searchParams.set()이 다시 인코딩하도록 한다.
+  const decodedKey = decodeURIComponent(apiKey);
   const url = new URL(`${API_CONFIG.MOLIT.BASE_URL}${endpoint}`);
-  url.searchParams.set('serviceKey', apiKey);
+  url.searchParams.set('serviceKey', decodedKey);
   url.searchParams.set('LAWD_CD', regionCode);
   url.searchParams.set('DEAL_YMD', dealYM);
   url.searchParams.set('numOfRows', '1000');
@@ -156,7 +158,7 @@ async function fetchMolitData(
 
   const response = await fetch(requestUrl, {
     next: { revalidate: 3600 },
-    headers: { 'User-Agent': 'Mozilla/5.0 house-pin/1.0' },
+    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; house-pin/1.0)' },
   });
 
   if (!response.ok) {
@@ -169,8 +171,8 @@ async function fetchMolitData(
 
   const xml = await response.text();
 
-  // XML 응답에 에러 코드가 포함되어 있는지 확인
-  if (xml.includes('<resultCode>') && !xml.includes('<resultCode>00</resultCode>')) {
+  // XML 응답에 에러 코드가 포함되어 있는지 확인 (성공: "00" 또는 "000")
+  if (xml.includes('<resultCode>') && !xml.includes('<resultCode>00</resultCode>') && !xml.includes('<resultCode>000</resultCode>')) {
     console.error(`[molit] API 응답 에러: ${xml.substring(0, 500)}`);
     throw new Error(`국토부 API 응답 오류 (endpoint: ${endpoint})`);
   }

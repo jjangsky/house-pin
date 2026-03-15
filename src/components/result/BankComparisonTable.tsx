@@ -46,6 +46,35 @@ export default function BankComparisonTable({
   const [sortOption, setSortOption] = useState<SortOption>("minRate-asc");
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
+  const handleRetry = useCallback(() => {
+    setError(null);
+    setIsLoading(true);
+    const type =
+      assetInput.transactionType === "jeonse" ? "rent" : "mortgage";
+    fetch(`/api/loan-products?type=${type}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("대출 상품 데이터를 불러오지 못했습니다.");
+        return res.json();
+      })
+      .then((data) => {
+        const allProducts: BankLoanProduct[] = [];
+        for (const bank of data.banks ?? []) {
+          for (const product of bank.products ?? []) {
+            allProducts.push(product);
+          }
+        }
+        setProducts(allProducts);
+      })
+      .catch((err) => {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "알 수 없는 오류가 발생했습니다.",
+        );
+      })
+      .finally(() => setIsLoading(false));
+  }, [assetInput.transactionType]);
+
   // 필터나 정렬 변경 시 페이지네이션 초기화
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
@@ -173,35 +202,6 @@ export default function BankComparisonTable({
       </Card>
     );
   }
-
-  const handleRetry = useCallback(() => {
-    setError(null);
-    setIsLoading(true);
-    const type =
-      assetInput.transactionType === "jeonse" ? "rent" : "mortgage";
-    fetch(`/api/loan-products?type=${type}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("대출 상품 데이터를 불러오지 못했습니다.");
-        return res.json();
-      })
-      .then((data) => {
-        const allProducts: BankLoanProduct[] = [];
-        for (const bank of data.banks ?? []) {
-          for (const product of bank.products ?? []) {
-            allProducts.push(product);
-          }
-        }
-        setProducts(allProducts);
-      })
-      .catch((err) => {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "알 수 없는 오류가 발생했습니다.",
-        );
-      })
-      .finally(() => setIsLoading(false));
-  }, [assetInput.transactionType]);
 
   if (error) {
     return (
