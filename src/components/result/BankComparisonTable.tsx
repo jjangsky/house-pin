@@ -1,13 +1,18 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Card, Skeleton, Badge } from "@/components/common";
+import { Card, Skeleton, Badge, Button } from "@/components/common";
 import { formatToKoreanWon } from "@/lib/utils/format";
 import { calculateMonthlyPayment } from "@/lib/calculation";
 import { useHousePinStore } from "@/store/useHousePinStore";
 import type { BankLoanProduct } from "@/lib/api/fss";
 
 type RateFilter = "all" | "fixed" | "variable" | "mixed";
+type SortOption =
+  | "minRate-asc"
+  | "minRate-desc"
+  | "monthly-asc"
+  | "bankName-asc";
 
 const RATE_FILTER_LABELS: Record<RateFilter, string> = {
   all: "전체",
@@ -15,6 +20,15 @@ const RATE_FILTER_LABELS: Record<RateFilter, string> = {
   variable: "변동",
   mixed: "혼합",
 };
+
+const SORT_LABELS: Record<SortOption, string> = {
+  "minRate-asc": "최저금리 낮은순",
+  "minRate-desc": "최저금리 높은순",
+  "monthly-asc": "월상환액 낮은순",
+  "bankName-asc": "은행명 가나다순",
+};
+
+const PAGE_SIZE = 10;
 
 interface BankComparisonTableProps {
   loanAmount: number;
@@ -29,6 +43,13 @@ export default function BankComparisonTable({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [rateFilter, setRateFilter] = useState<RateFilter>("all");
+  const [sortOption, setSortOption] = useState<SortOption>("minRate-asc");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  // 필터나 정렬 변경 시 페이지네이션 초기화
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [rateFilter, sortOption]);
 
   useEffect(() => {
     let cancelled = false;
@@ -103,9 +124,35 @@ export default function BankComparisonTable({
       };
     });
 
-    // 최저금리 오름차순 정렬
-    return withCalculations.sort((a, b) => a.minRate - b.minRate);
-  }, [products, rateFilter, loanAmount, assetInput.loanTermYears]);
+    // 정렬
+    return withCalculations.sort((a, b) => {
+      switch (sortOption) {
+        case "minRate-asc":
+          return a.minRate - b.minRate;
+        case "minRate-desc":
+          return b.minRate - a.minRate;
+        case "monthly-asc":
+          return a.calculatedMonthlyPayment - b.calculatedMonthlyPayment;
+        case "bankName-asc":
+          return a.bankName.localeCompare(b.bankName, "ko");
+        default:
+          return 0;
+      }
+    });
+  }, [products, rateFilter, sortOption, loanAmount, assetInput.loanTermYears]);
+
+  const paginatedProducts = useMemo(
+    () => displayProducts.slice(0, visibleCount),
+    [displayProducts, visibleCount],
+  );
+
+  const totalCount = displayProducts.length;
+  const shownCount = Math.min(visibleCount, totalCount);
+  const hasMore = shownCount < totalCount;
+
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + PAGE_SIZE);
+  };
 
   const rateTypeBadgeVariant = (type: BankLoanProduct["rateType"]) => {
     if (type === "fixed") return "info" as const;
@@ -148,30 +195,45 @@ export default function BankComparisonTable({
         {formatToKoreanWon(loanAmount)} 대출 기준 비교
       </p>
 
-      {/* 필터 탭 */}
-      <div
-        className="mb-5 flex gap-2"
-        role="tablist"
-        aria-label="금리 유형 필터"
-      >
-        {(Object.keys(RATE_FILTER_LABELS) as RateFilter[]).map((key) => (
-          <button
-            key={key}
-            role="tab"
-            aria-selected={rateFilter === key}
-            onClick={() => setRateFilter(key)}
-            className={`
-              rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200
-              ${
-                rateFilter === key
-                  ? "bg-accent text-white"
-                  : "bg-surface text-secondary hover:text-primary"
-              }
-            `.trim()}
-          >
-            {RATE_FILTER_LABELS[key]}
-          </button>
-        ))}
+      {/* 필터 탭 + 정렬 */}
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div
+          className="flex gap-2"
+          role="tablist"
+          aria-label="금리 유형 필터"
+        >
+          {(Object.keys(RATE_FILTER_LABELS) as RateFilter[]).map((key) => (
+            <button
+              key={key}
+              role="tab"
+              aria-selected={rateFilter === key}
+              onClick={() => setRateFilter(key)}
+              className={`
+                rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200
+                ${
+                  rateFilter === key
+                    ? "bg-accent text-white"
+                    : "bg-surface text-secondary hover:text-primary"
+                }
+              `.trim()}
+            >
+              {RATE_FILTER_LABELS[key]}
+            </button>
+          ))}
+        </div>
+
+        <select
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value as SortOption)}
+          aria-label="정렬 기준"
+          className="rounded-[12px] border border-border bg-white px-3 py-2 text-sm text-primary outline-none transition-colors duration-200 focus:border-accent"
+        >
+          {(Object.keys(SORT_LABELS) as SortOption[]).map((key) => (
+            <option key={key} value={key}>
+              {SORT_LABELS[key]}
+            </option>
+          ))}
+        </select>
       </div>
 
       {displayProducts.length === 0 ? (
@@ -194,7 +256,7 @@ export default function BankComparisonTable({
                 </tr>
               </thead>
               <tbody>
-                {displayProducts.map((p, idx) => (
+                {paginatedProducts.map((p, idx) => (
                   <tr
                     key={`${p.bankName}-${p.productName}-${p.rateType}-${idx}`}
                     className="border-b border-border last:border-b-0"
@@ -225,7 +287,7 @@ export default function BankComparisonTable({
 
           {/* 모바일 카드 리스트 */}
           <div className="flex flex-col gap-3 sm:hidden">
-            {displayProducts.map((p, idx) => (
+            {paginatedProducts.map((p, idx) => (
               <div
                 key={`mobile-${p.bankName}-${p.productName}-${p.rateType}-${idx}`}
                 className="rounded-[12px] border border-border p-4"
@@ -262,6 +324,22 @@ export default function BankComparisonTable({
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* 더보기 영역 */}
+          <div className="mt-5 flex flex-col items-center gap-2">
+            <p className="text-sm text-secondary">
+              {shownCount} / {totalCount}개 상품
+            </p>
+            {hasMore && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleLoadMore}
+              >
+                더보기
+              </Button>
+            )}
           </div>
         </>
       )}
