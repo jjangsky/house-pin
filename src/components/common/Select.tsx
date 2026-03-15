@@ -7,6 +7,8 @@ interface SelectOption {
   label: string;
 }
 
+type SelectSize = "xs" | "sm" | "md";
+
 interface SelectProps {
   label?: string;
   options: SelectOption[];
@@ -19,7 +21,14 @@ interface SelectProps {
   id?: string;
   disabled?: boolean;
   className?: string;
+  size?: SelectSize;
 }
+
+const sizeStyles: Record<SelectSize, { trigger: string; option: string }> = {
+  xs: { trigger: "px-2.5 py-1.5 text-xs", option: "px-2.5 py-1.5 text-xs" },
+  sm: { trigger: "px-3 py-2 text-sm", option: "px-3 py-2 text-sm" },
+  md: { trigger: "px-4 py-3 text-base", option: "px-4 py-3 text-base" },
+};
 
 export default function Select({
   label,
@@ -31,6 +40,7 @@ export default function Select({
   id,
   disabled = false,
   className = "",
+  size = "md",
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -113,7 +123,7 @@ export default function Select({
           onKeyDown={handleKeyDown}
           className={`
             flex w-full items-center justify-between rounded-[12px] border
-            px-4 py-3 text-left text-base transition-all duration-200
+            ${sizeStyles[size].trigger} text-left transition-all duration-200
             outline-none
             ${
               isOpen
@@ -165,7 +175,7 @@ export default function Select({
                   aria-selected={isSelected}
                   onClick={() => handleSelect(option.value)}
                   className={`
-                    flex cursor-pointer items-center justify-between px-4 py-3 text-base
+                    flex cursor-pointer items-center justify-between ${sizeStyles[size].option}
                     transition-colors duration-100
                     ${
                       isSelected

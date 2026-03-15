@@ -232,15 +232,15 @@ export default function BankComparisonTable({
 
   return (
     <Card>
-      <h3 className="mb-1 text-lg font-semibold text-primary">
+      <h3 className="text-lg font-semibold text-primary">
         은행별 금리 비교
       </h3>
-      <p className="mb-5 text-sm text-secondary">
+      <p className="mt-1 mb-4 text-sm text-secondary">
         {formatToKoreanWon(loanAmount)} 대출 기준 비교
       </p>
 
       {/* 필터 탭 + 정렬 */}
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-5 flex flex-col gap-3">
         <div
           className="flex gap-2"
           role="tablist"
@@ -266,8 +266,9 @@ export default function BankComparisonTable({
           ))}
         </div>
 
-        <div className="w-[170px]">
+        <div className="w-[160px] self-end">
           <Select
+            size="sm"
             options={(Object.keys(SORT_LABELS) as SortOption[]).map((key) => ({
               value: key,
               label: SORT_LABELS[key],

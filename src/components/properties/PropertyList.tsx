@@ -106,8 +106,9 @@ export default function PropertyList({
         <p className="text-sm text-secondary">
           총 <span className="font-semibold text-primary">{filtered.length}</span>건
         </p>
-        <div className="w-[140px]">
+        <div className="w-[130px]">
           <Select
+            size="sm"
             options={SORT_OPTIONS}
             value={sortKey}
             onValueChange={(v) => setSortKey(v as SortKey)}
