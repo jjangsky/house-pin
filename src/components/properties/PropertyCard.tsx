@@ -1,5 +1,9 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import { Card, Badge } from "@/components/common";
 import { formatToKoreanWon, sqmToPyeong } from "@/lib/utils/format";
+import { generatePropertySlug } from "@/lib/utils/property";
 import type { Property } from "@/types";
 
 interface PropertyCardProps {
@@ -11,6 +15,7 @@ export default function PropertyCard({
   property,
   affordablePrice,
 }: PropertyCardProps) {
+  const router = useRouter();
   const {
     name,
     dealAmount,
@@ -39,8 +44,15 @@ export default function PropertyCard({
   const pyeong = sqmToPyeong(area);
   const dealDate = `${dealYear}.${String(dealMonth).padStart(2, "0")}.${String(dealDay).padStart(2, "0")}`;
 
+  const handleClick = () => {
+    router.push(`/properties/${generatePropertySlug(property)}`);
+  };
+
   return (
-    <Card className="flex flex-col gap-3">
+    <Card
+      className="flex cursor-pointer flex-col gap-3 transition-transform duration-150 active:scale-[0.98]"
+      onClick={handleClick}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
           <h3 className="text-base font-bold text-primary leading-snug">

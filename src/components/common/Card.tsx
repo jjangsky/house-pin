@@ -5,6 +5,7 @@ interface CardProps {
   title?: string;
   children: React.ReactNode;
   className?: string;
+  onClick?: () => void;
 }
 
 export default function Card({
@@ -12,6 +13,7 @@ export default function Card({
   title,
   children,
   className = "",
+  onClick,
 }: CardProps) {
   const variantStyles: Record<CardVariant, string> = {
     default: "bg-surface",
@@ -25,6 +27,10 @@ export default function Card({
         ${variantStyles[variant]}
         ${className}
       `.trim()}
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
     >
       {title && (
         <h3 className="mb-3 text-lg font-semibold text-primary">
