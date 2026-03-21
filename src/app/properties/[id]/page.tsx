@@ -6,6 +6,7 @@ import { Button } from "@/components/common";
 import { useHousePinStore } from "@/store/useHousePinStore";
 import { findPropertyBySlug } from "@/lib/utils/property";
 import PropertyDetailHeader from "@/components/properties/detail/PropertyDetailHeader";
+import PropertyLocationMap from "@/components/properties/detail/PropertyLocationMap";
 
 export default function PropertyDetailPage({
   params,
@@ -123,7 +124,10 @@ export default function PropertyDetailPage({
           affordablePrice={affordablePrice}
         />
 
-        {/* Section 2~6: 후속 커밋에서 추가 */}
+        {/* Section 2: 위치 정보 */}
+        <PropertyLocationMap property={property} />
+
+        {/* Section 3~6: 후속 커밋에서 추가 */}
       </div>
 
       {/* 하단 CTA */}
