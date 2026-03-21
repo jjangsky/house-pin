@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/common";
 import { useHousePinStore } from "@/store/useHousePinStore";
@@ -94,6 +94,11 @@ export default function PropertyDetailPage({
     );
   }
 
+  const affordability = useMemo(
+    () => calculatePropertyAffordability(property, assetInput, loanResult),
+    [property, assetInput, loanResult],
+  );
+
   return (
     <main className="pb-12">
       {/* 헤더: 뒤로가기 */}
@@ -143,8 +148,7 @@ export default function PropertyDetailPage({
         {/* Section 4: 추천 대출 상품 */}
         <RecommendedLoanProducts
           requiredLoan={
-            calculatePropertyAffordability(property, assetInput, loanResult)
-              .requiredLoan
+            affordability.requiredLoan
           }
           loanResult={loanResult}
           assetInput={assetInput}
@@ -153,8 +157,7 @@ export default function PropertyDetailPage({
         {/* Section 5: 월 상환 시뮬레이션 */}
         <MonthlyPaymentSimulation
           requiredLoan={
-            calculatePropertyAffordability(property, assetInput, loanResult)
-              .requiredLoan
+            affordability.requiredLoan
           }
           loanTermYears={assetInput.loanTermYears}
           annualIncome={assetInput.annualIncome}

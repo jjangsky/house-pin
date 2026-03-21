@@ -69,7 +69,7 @@ export default function RecommendedLoanProducts({
   }, [type]);
 
   const topProducts = useMemo(() => {
-    return banks
+    return [...banks]
       .sort((a, b) => a.lowestRate - b.lowestRate)
       .slice(0, 5)
       .map((bank) => {

@@ -76,7 +76,7 @@ export default function PropertyLocationMap({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kakaoKey]);
+  }, [kakaoKey, coords.lat, coords.lng]);
 
   function initMap() {
     if (!mapRef.current || !window.kakao) return;
@@ -91,8 +91,13 @@ export default function PropertyLocationMap({
 
       const marker = new maps.Marker({ position: center, map });
 
+      const escapedName = property.name
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
       const infoWindow = new maps.InfoWindow({
-        content: `<div style="padding:8px 12px;font-size:13px;font-weight:600;white-space:nowrap;">${property.name}</div>`,
+        content: `<div style="padding:8px 12px;font-size:13px;font-weight:600;white-space:nowrap;">${escapedName}</div>`,
       });
       infoWindow.open(map, marker);
 

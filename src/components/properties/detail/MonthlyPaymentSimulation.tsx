@@ -29,12 +29,34 @@ export default function MonthlyPaymentSimulation({
   );
 
   const simulation = useMemo(() => {
-    const monthlyPayment = isEqualPrincipal
-      ? calculateMonthlyPaymentEqualPrincipal(requiredLoan, rate, loanTermYears)
-      : calculateMonthlyPayment(requiredLoan, rate, loanTermYears);
+    const totalMonths = loanTermYears * 12;
+    const monthlyRate = rate / 100 / 12;
 
-    const totalPayment = Math.round(monthlyPayment * loanTermYears * 12);
-    const totalInterest = totalPayment - requiredLoan;
+    let monthlyPayment: number;
+    let totalInterest: number;
+
+    if (isEqualPrincipal) {
+      // 원금균등: 첫 달 상환액 (표시용), 총이자는 정확 계산
+      monthlyPayment = calculateMonthlyPaymentEqualPrincipal(
+        requiredLoan,
+        rate,
+        loanTermYears,
+      );
+      // 원금균등 총이자 = 월이자율 × 원금 × (총개월수 + 1) / 2
+      totalInterest =
+        rate === 0
+          ? 0
+          : Math.round(monthlyRate * requiredLoan * (totalMonths + 1) / 2);
+    } else {
+      monthlyPayment = calculateMonthlyPayment(
+        requiredLoan,
+        rate,
+        loanTermYears,
+      );
+      totalInterest = Math.round(monthlyPayment * totalMonths - requiredLoan);
+    }
+
+    const totalPayment = requiredLoan + totalInterest;
     const incomeRatio =
       annualIncome > 0
         ? Math.round((monthlyPayment * 12 * 100) / annualIncome)
