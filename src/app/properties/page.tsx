@@ -2,43 +2,12 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { StepIndicator, Button, Card, Skeleton } from "@/components/common";
+import { StepIndicator, Button } from "@/components/common";
 import { useHousePinStore } from "@/store/useHousePinStore";
-import { formatToKoreanWon, getRecentMonths } from "@/lib/utils/format";
-import {
-  filterByAffordability,
-  toProperty,
-} from "@/lib/utils/propertyFilter";
-import type { RealEstateTransaction } from "@/lib/api/molit";
+import { formatToKoreanWon } from "@/lib/utils/format";
 import type { Property } from "@/types";
 import PropertyView from "@/components/properties/PropertyView";
-
-type FetchType = "apt" | "villa" | "officetel";
-type PropertyType = "apartment" | "villa" | "officetel";
-
-const FETCH_TYPES: { type: FetchType; propertyType: PropertyType }[] = [
-  { type: "apt", propertyType: "apartment" },
-  { type: "villa", propertyType: "villa" },
-  { type: "officetel", propertyType: "officetel" },
-];
-
-async function fetchPropertiesForRegion(
-  regionCode: string,
-  dealYM: string,
-  fetchType: FetchType
-): Promise<RealEstateTransaction[]> {
-  const url = `/api/real-estate?regionCode=${regionCode}&dealYM=${dealYM}&type=${fetchType}`;
-  const res = await fetch(url);
-  if (!res.ok) {
-    const errorBody = await res.text().catch(() => '(응답 읽기 실패)');
-    console.error(
-      `[properties] API 호출 실패: status=${res.status}, regionCode=${regionCode}, dealYM=${dealYM}, type=${fetchType}, body=${errorBody.substring(0, 300)}`
-    );
-    return [];
-  }
-  const json = await res.json();
-  return json.data ?? [];
-}
+import LoadingProgress from "@/components/properties/LoadingProgress";
 
 export default function PropertiesPage() {
   const router = useRouter();
@@ -61,38 +30,26 @@ export default function PropertiesPage() {
     setError(null);
 
     try {
-      const months = getRecentMonths(6);
-      const allProperties: Property[] = [];
-
-      // 각 지역 + 각 월 + 각 매물 유형 조회
-      for (const region of selectedRegions) {
-        for (const { type, propertyType } of FETCH_TYPES) {
-          const promises = months.map((dealYM) =>
-            fetchPropertiesForRegion(region.code, dealYM, type)
-          );
-          const results = await Promise.all(promises);
-          const allTransactions = results.flat();
-
-          // 구매력 범위 필터링
-          const filtered = filterByAffordability({
-            transactions: allTransactions,
-            maxPrice: affordablePrice,
-          });
-
-          const mapped = filtered.map((tx) => toProperty(tx, propertyType));
-          allProperties.push(...mapped);
-        }
-      }
-
-      // 최신순 정렬
-      allProperties.sort((a, b) => {
-        if (a.dealYear !== b.dealYear) return b.dealYear - a.dealYear;
-        if (a.dealMonth !== b.dealMonth) return b.dealMonth - a.dealMonth;
-        return b.dealDay - a.dealDay;
+      const res = await fetch("/api/real-estate/batch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          regionCodes: selectedRegions.map((r) => r.code),
+          types: ["apt", "villa", "officetel"],
+          months: 3,
+          maxPrice: affordablePrice,
+        }),
       });
 
-      setLocalProperties(allProperties);
-      setProperties(allProperties);
+      if (!res.ok) {
+        throw new Error("매물 데이터를 불러오는 중 오류가 발생했습니다.");
+      }
+
+      const json = await res.json();
+      const properties = (json.data ?? []) as Property[];
+
+      setLocalProperties(properties);
+      setProperties(properties);
     } catch (err) {
       console.error("[properties] 매물 조회 실패:", err);
       setError("매물 데이터를 불러오는 중 오류가 발생했습니다.");
@@ -140,20 +97,7 @@ export default function PropertiesPage() {
       </div>
 
       {/* 로딩 상태 */}
-      {loading && (
-        <div className="flex flex-col gap-3">
-          {[1, 2, 3].map((i) => (
-            <Card key={i}>
-              <div className="flex flex-col gap-3">
-                <Skeleton height="20px" width="60%" />
-                <Skeleton height="24px" width="40%" />
-                <Skeleton height="16px" width="80%" />
-                <Skeleton height="14px" width="30%" />
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
+      {loading && <LoadingProgress />}
 
       {/* 에러 상태 */}
       {!loading && error && (
