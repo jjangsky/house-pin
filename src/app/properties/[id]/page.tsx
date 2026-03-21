@@ -5,8 +5,13 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/common";
 import { useHousePinStore } from "@/store/useHousePinStore";
 import { findPropertyBySlug } from "@/lib/utils/property";
+import { calculatePropertyAffordability } from "@/lib/calculation/affordability";
 import PropertyDetailHeader from "@/components/properties/detail/PropertyDetailHeader";
 import PropertyLocationMap from "@/components/properties/detail/PropertyLocationMap";
+import AffordabilityAnalysis from "@/components/properties/detail/AffordabilityAnalysis";
+import RecommendedLoanProducts from "@/components/properties/detail/RecommendedLoanProducts";
+import MonthlyPaymentSimulation from "@/components/properties/detail/MonthlyPaymentSimulation";
+import SimilarProperties from "@/components/properties/detail/SimilarProperties";
 
 export default function PropertyDetailPage({
   params,
@@ -17,6 +22,7 @@ export default function PropertyDetailPage({
   const router = useRouter();
 
   const loanResult = useHousePinStore((s) => s.loanResult);
+  const assetInput = useHousePinStore((s) => s.assetInput);
   const properties = useHousePinStore((s) => s.properties);
   const affordablePrice = loanResult?.affordablePrice ?? 0;
 
@@ -127,7 +133,40 @@ export default function PropertyDetailPage({
         {/* Section 2: 위치 정보 */}
         <PropertyLocationMap property={property} />
 
-        {/* Section 3~6: 후속 커밋에서 추가 */}
+        {/* Section 3: 구매 가능성 분석 */}
+        <AffordabilityAnalysis
+          property={property}
+          assetInput={assetInput}
+          loanResult={loanResult}
+        />
+
+        {/* Section 4: 추천 대출 상품 */}
+        <RecommendedLoanProducts
+          requiredLoan={
+            calculatePropertyAffordability(property, assetInput, loanResult)
+              .requiredLoan
+          }
+          loanResult={loanResult}
+          assetInput={assetInput}
+        />
+
+        {/* Section 5: 월 상환 시뮬레이션 */}
+        <MonthlyPaymentSimulation
+          requiredLoan={
+            calculatePropertyAffordability(property, assetInput, loanResult)
+              .requiredLoan
+          }
+          loanTermYears={assetInput.loanTermYears}
+          annualIncome={assetInput.annualIncome}
+          defaultRepaymentType={assetInput.repaymentType}
+        />
+
+        {/* Section 6: 비슷한 매물 */}
+        <SimilarProperties
+          target={property}
+          allProperties={properties}
+          affordablePrice={affordablePrice}
+        />
       </div>
 
       {/* 하단 CTA */}
