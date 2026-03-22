@@ -44,6 +44,9 @@ export const useHousePinStore = create<HousePinStore>((set) => ({
   properties: [],
   setProperties: (properties) => set({ properties }),
 
+  liveListings: [],
+  setLiveListings: (listings) => set({ liveListings: listings }),
+
   reset: () =>
     set({
       currentStep: 1,
@@ -51,5 +54,6 @@ export const useHousePinStore = create<HousePinStore>((set) => ({
       loanResult: null,
       selectedRegions: [],
       properties: [],
+      liveListings: [],
     }),
 }));

@@ -80,5 +80,8 @@ export interface HousePinStore {
   properties: Property[];
   setProperties: (properties: Property[]) => void;
 
+  liveListings: import('./listing').LiveListing[];
+  setLiveListings: (listings: import('./listing').LiveListing[]) => void;
+
   reset: () => void;
 }
