@@ -6,6 +6,7 @@ import { StepIndicator, Button } from "@/components/common";
 import { useHousePinStore } from "@/store/useHousePinStore";
 import { formatToKoreanWon } from "@/lib/utils/format";
 import type { Property } from "@/types";
+import type { LiveListing } from "@/types/listing";
 import PropertyView from "@/components/properties/PropertyView";
 import LoadingProgress from "@/components/properties/LoadingProgress";
 
@@ -14,6 +15,7 @@ export default function PropertiesPage() {
   const selectedRegions = useHousePinStore((s) => s.selectedRegions);
   const loanResult = useHousePinStore((s) => s.loanResult);
   const setProperties = useHousePinStore((s) => s.setProperties);
+  const setLiveListings = useHousePinStore((s) => s.setLiveListings);
   const setCurrentStep = useHousePinStore((s) => s.setCurrentStep);
   const reset = useHousePinStore((s) => s.reset);
 
@@ -21,9 +23,15 @@ export default function PropertiesPage() {
   const [error, setError] = useState<string | null>(null);
   const [localProperties, setLocalProperties] = useState<Property[]>([]);
 
+  // 실시간 매물 상태 (독립적)
+  const [liveLoading, setLiveLoading] = useState(true);
+  const [liveError, setLiveError] = useState<string | null>(null);
+  const [localLiveListings, setLocalLiveListings] = useState<LiveListing[]>([]);
+
   const affordablePrice = loanResult?.affordablePrice ?? 0;
 
-  const loadProperties = useCallback(async () => {
+  // 실거래 데이터 로드
+  const loadTransactions = useCallback(async () => {
     if (!loanResult || selectedRegions.length === 0) return;
 
     setLoading(true);
@@ -41,9 +49,7 @@ export default function PropertiesPage() {
         }),
       });
 
-      if (!res.ok) {
-        throw new Error("매물 데이터를 불러오는 중 오류가 발생했습니다.");
-      }
+      if (!res.ok) throw new Error("실거래 데이터를 불러오는 중 오류가 발생했습니다.");
 
       const json = await res.json();
       const properties = (json.data ?? []) as Property[];
@@ -51,30 +57,68 @@ export default function PropertiesPage() {
       setLocalProperties(properties);
       setProperties(properties);
     } catch (err) {
-      console.error("[properties] 매물 조회 실패:", err);
-      setError("매물 데이터를 불러오는 중 오류가 발생했습니다.");
+      console.error("[properties] 실거래 조회 실패:", err);
+      setError("실거래 데이터를 불러오는 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }
   }, [loanResult, selectedRegions, affordablePrice, setProperties]);
 
+  // 실시간 매물 로드
+  const loadLiveListings = useCallback(async () => {
+    if (!loanResult || selectedRegions.length === 0) return;
+
+    setLiveLoading(true);
+    setLiveError(null);
+
+    try {
+      const res = await fetch("/api/real-estate/listings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          regionCodes: selectedRegions.map((r) => r.code),
+          categories: ["apt", "officetel", "house"],
+          maxPrice: affordablePrice,
+        }),
+      });
+
+      if (!res.ok) throw new Error("현재 매물을 불러오는 중 오류가 발생했습니다.");
+
+      const json = await res.json();
+      const listings = (json.listings ?? []) as LiveListing[];
+
+      setLocalLiveListings(listings);
+      setLiveListings(listings);
+
+      if (json.meta?.rateLimited) {
+        setLiveError("일부 지역의 매물을 불러오지 못했습니다");
+      }
+    } catch (err) {
+      console.error("[properties] 실시간 매물 조회 실패:", err);
+      setLiveError("현재 매물을 불러올 수 없습니다");
+    } finally {
+      setLiveLoading(false);
+    }
+  }, [loanResult, selectedRegions, affordablePrice, setLiveListings]);
+
   useEffect(() => {
-    // 필수 데이터 없으면 리다이렉트
     if (!loanResult || selectedRegions.length === 0) {
       router.replace("/input");
       return;
     }
 
     setCurrentStep(4);
-    loadProperties();
-  }, [loanResult, selectedRegions, router, setCurrentStep, loadProperties]);
+
+    // 두 데이터 소스 병렬 호출
+    loadTransactions();
+    loadLiveListings();
+  }, [loanResult, selectedRegions, router, setCurrentStep, loadTransactions, loadLiveListings]);
 
   const handleReset = () => {
     reset();
     router.push("/input");
   };
 
-  // 필수 데이터 없는 경우 (리다이렉트 전)
   if (!loanResult || selectedRegions.length === 0) {
     return null;
   }
@@ -86,7 +130,7 @@ export default function PropertiesPage() {
       <div className="mt-4 mb-6">
         <h1 className="text-2xl font-bold text-primary">매물 추천</h1>
         <p className="mt-2 text-base text-secondary">
-          구매력 범위 내 실거래 매물입니다
+          구매력 범위 내 매물을 확인하세요
         </p>
         <p className="mt-1 text-sm text-secondary">
           구매 가능 금액:{" "}
@@ -96,10 +140,10 @@ export default function PropertiesPage() {
         </p>
       </div>
 
-      {/* 로딩 상태 */}
+      {/* 실거래 로딩 */}
       {loading && <LoadingProgress />}
 
-      {/* 에러 상태 */}
+      {/* 실거래 에러 */}
       {!loading && error && (
         <div className="flex flex-col items-center justify-center py-16">
           <p className="text-base font-semibold text-primary">{error}</p>
@@ -110,7 +154,7 @@ export default function PropertiesPage() {
             variant="secondary"
             size="sm"
             className="mt-4"
-            onClick={loadProperties}
+            onClick={loadTransactions}
           >
             다시 시도
           </Button>
@@ -121,11 +165,13 @@ export default function PropertiesPage() {
       {!loading && !error && (
         <PropertyView
           properties={localProperties}
+          liveListings={localLiveListings}
           affordablePrice={affordablePrice}
+          liveLoading={liveLoading}
+          liveError={liveError}
         />
       )}
 
-      {/* 처음부터 다시 버튼 */}
       <div className="mt-10">
         <Button
           variant="ghost"
