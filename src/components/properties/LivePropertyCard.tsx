@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Card, Badge } from "@/components/common";
 import { formatToKoreanWon, sqmToPyeong } from "@/lib/utils/format";
+import { generateLiveSlug } from "@/lib/utils/listingAdapter";
 import type { LiveListing } from "@/types/listing";
 
 interface LivePropertyCardProps {
@@ -28,6 +30,11 @@ export default function LivePropertyCard({
   affordablePrice,
   onClick,
 }: LivePropertyCardProps) {
+  const router = useRouter();
+
+  const handleClick = onClick ?? (() => {
+    router.push(`/properties/${generateLiveSlug(listing)}`);
+  });
   const {
     name,
     askingPrice,
@@ -51,7 +58,7 @@ export default function LivePropertyCard({
   return (
     <Card
       className="flex cursor-pointer gap-4 transition-transform duration-150 active:scale-[0.98]"
-      onClick={onClick}
+      onClick={handleClick}
     >
       {/* 썸네일 */}
       <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-[10px] bg-border/30">

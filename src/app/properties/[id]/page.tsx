@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/common";
 import { useHousePinStore } from "@/store/useHousePinStore";
 import { findPropertyBySlug } from "@/lib/utils/property";
+import { isLiveSlug, parseLiveSlug } from "@/lib/utils/listingAdapter";
 import { calculatePropertyAffordability } from "@/lib/calculation/affordability";
 import PropertyDetailHeader from "@/components/properties/detail/PropertyDetailHeader";
 import PropertyLocationMap from "@/components/properties/detail/PropertyLocationMap";
@@ -12,6 +13,7 @@ import AffordabilityAnalysis from "@/components/properties/detail/AffordabilityA
 import RecommendedLoanProducts from "@/components/properties/detail/RecommendedLoanProducts";
 import MonthlyPaymentSimulation from "@/components/properties/detail/MonthlyPaymentSimulation";
 import SimilarProperties from "@/components/properties/detail/SimilarProperties";
+import LiveDetailView from "@/components/properties/detail/LiveDetailView";
 
 export default function PropertyDetailPage({
   params,
@@ -24,6 +26,7 @@ export default function PropertyDetailPage({
   const loanResult = useHousePinStore((s) => s.loanResult);
   const assetInput = useHousePinStore((s) => s.assetInput);
   const properties = useHousePinStore((s) => s.properties);
+  const liveListings = useHousePinStore((s) => s.liveListings);
   const affordablePrice = loanResult?.affordablePrice ?? 0;
 
   // 가드: 대출 계산 결과 없음
@@ -70,7 +73,51 @@ export default function PropertyDetailPage({
     );
   }
 
-  // slug로 매물 찾기
+  // 실시간 매물 분기
+  if (isLiveSlug(id)) {
+    const seq = parseLiveSlug(id);
+    const liveListing = seq
+      ? liveListings.find((l) => l.listingSeq === seq)
+      : null;
+
+    if (!liveListing) {
+      return (
+        <main className="flex flex-col items-center justify-center py-24">
+          <p className="text-lg font-semibold text-primary">
+            매물을 찾을 수 없습니다
+          </p>
+          <Button
+            variant="primary"
+            size="md"
+            className="mt-6"
+            onClick={() => router.push("/properties")}
+          >
+            매물 목록으로
+          </Button>
+        </main>
+      );
+    }
+
+    return (
+      <main className="pb-12">
+        <div className="mb-6 flex items-center gap-3">
+          <button
+            onClick={() => router.back()}
+            className="flex h-9 w-9 items-center justify-center rounded-[10px] text-secondary transition-colors hover:bg-surface active:bg-border"
+            aria-label="뒤로가기"
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          <h2 className="text-lg font-semibold text-primary">매물 상세</h2>
+        </div>
+        <LiveDetailView listing={liveListing} />
+      </main>
+    );
+  }
+
+  // 실거래 매물 slug 매칭
   const property = findPropertyBySlug(properties, id);
 
   if (!property) {
