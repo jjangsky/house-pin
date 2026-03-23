@@ -146,6 +146,14 @@ export default function PropertiesPage() {
             {formatToKoreanWon(affordablePrice)}
           </span>
         </p>
+        {!loading && !error && localProperties.length > 0 && (
+          <button
+            onClick={() => router.push("/analytics")}
+            className="mt-3 text-sm font-medium text-accent hover:underline"
+          >
+            지역 시세 분석 보기 →
+          </button>
+        )}
       </div>
 
       {/* 실거래 로딩 */}
