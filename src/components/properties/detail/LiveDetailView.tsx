@@ -12,6 +12,8 @@ import type { LiveListing } from "@/types/listing";
 
 import ImageGallery from "./ImageGallery";
 import AffordabilityAnalysis from "./AffordabilityAnalysis";
+import TaxBreakdownCard from "./TaxBreakdownCard";
+import PropertyTaxCard from "./PropertyTaxCard";
 import RecommendedLoanProducts from "./RecommendedLoanProducts";
 import MonthlyPaymentSimulation from "./MonthlyPaymentSimulation";
 import PremiumRateBadge from "../PremiumRateBadge";
@@ -153,6 +155,13 @@ export default function LiveDetailView({ listing }: LiveDetailViewProps) {
           loanResult={loanResult}
         />
       )}
+
+      {/* 세금/부대비용 */}
+      <TaxBreakdownCard
+        purchasePrice={listing.askingPrice}
+        numberOfHomes={assetInput.numberOfHomes}
+      />
+      <PropertyTaxCard purchasePrice={listing.askingPrice} />
 
       {/* 추천 대출 상품 */}
       {loanResult && affordability && (

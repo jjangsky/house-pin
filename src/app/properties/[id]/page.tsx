@@ -10,6 +10,8 @@ import { calculatePropertyAffordability } from "@/lib/calculation/affordability"
 import PropertyDetailHeader from "@/components/properties/detail/PropertyDetailHeader";
 import PropertyLocationMap from "@/components/properties/detail/PropertyLocationMap";
 import AffordabilityAnalysis from "@/components/properties/detail/AffordabilityAnalysis";
+import TaxBreakdownCard from "@/components/properties/detail/TaxBreakdownCard";
+import PropertyTaxCard from "@/components/properties/detail/PropertyTaxCard";
 import RecommendedLoanProducts from "@/components/properties/detail/RecommendedLoanProducts";
 import MonthlyPaymentSimulation from "@/components/properties/detail/MonthlyPaymentSimulation";
 import SimilarProperties from "@/components/properties/detail/SimilarProperties";
@@ -191,6 +193,13 @@ export default function PropertyDetailPage({
           assetInput={assetInput}
           loanResult={loanResult}
         />
+
+        {/* Section 3.5: 세금/부대비용 */}
+        <TaxBreakdownCard
+          purchasePrice={property.dealAmount}
+          numberOfHomes={assetInput.numberOfHomes}
+        />
+        <PropertyTaxCard purchasePrice={property.dealAmount} />
 
         {/* Section 4: 추천 대출 상품 */}
         <RecommendedLoanProducts
