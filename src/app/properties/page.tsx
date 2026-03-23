@@ -14,19 +14,23 @@ export default function PropertiesPage() {
   const router = useRouter();
   const selectedRegions = useHousePinStore((s) => s.selectedRegions);
   const loanResult = useHousePinStore((s) => s.loanResult);
+  const storedProperties = useHousePinStore((s) => s.properties);
+  const storedLiveListings = useHousePinStore((s) => s.liveListings);
   const setProperties = useHousePinStore((s) => s.setProperties);
   const setLiveListings = useHousePinStore((s) => s.setLiveListings);
   const setCurrentStep = useHousePinStore((s) => s.setCurrentStep);
   const reset = useHousePinStore((s) => s.reset);
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [localProperties, setLocalProperties] = useState<Property[]>([]);
+  // Store에 캐시된 데이터가 있으면 초기값으로 사용
+  const hasCachedData = storedProperties.length > 0;
 
-  // 실시간 매물 상태 (독립적)
-  const [liveLoading, setLiveLoading] = useState(true);
+  const [loading, setLoading] = useState(!hasCachedData);
+  const [error, setError] = useState<string | null>(null);
+  const [localProperties, setLocalProperties] = useState<Property[]>(storedProperties);
+
+  const [liveLoading, setLiveLoading] = useState(storedLiveListings.length === 0);
   const [liveError, setLiveError] = useState<string | null>(null);
-  const [localLiveListings, setLocalLiveListings] = useState<LiveListing[]>([]);
+  const [localLiveListings, setLocalLiveListings] = useState<LiveListing[]>(storedLiveListings);
 
   const affordablePrice = loanResult?.affordablePrice ?? 0;
 
@@ -109,9 +113,13 @@ export default function PropertiesPage() {
 
     setCurrentStep(4);
 
-    // 두 데이터 소스 병렬 호출
-    loadTransactions();
-    loadLiveListings();
+    // Store에 캐시된 데이터가 있으면 API 재호출 건너뜀
+    if (storedProperties.length === 0) {
+      loadTransactions();
+    }
+    if (storedLiveListings.length === 0) {
+      loadLiveListings();
+    }
   }, [loanResult, selectedRegions, router, setCurrentStep, loadTransactions, loadLiveListings]);
 
   const handleReset = () => {
