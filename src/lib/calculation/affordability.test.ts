@@ -26,7 +26,7 @@ const BASE_ASSET_INPUT: AssetInput = {
 };
 
 const BASE_LOAN_RESULT: LoanResult = {
-  ltv: 70,
+  ltv: 0.70,
   ltvBasedLimit: 46667,
   dsrBasedLimit: 50000,
   finalLoanLimit: 46667, // 약 4.67억

@@ -50,8 +50,8 @@ export function calculatePropertyAffordability(
   const { ownCapital } = assetInput;
   const { ltv, finalLoanLimit, affordablePrice } = loanResult;
 
-  const ltvRatio = ltv / 100;
-  const requiredOwnCapital = Math.round(dealAmount * (1 - ltvRatio));
+  // ltv는 이미 소수 비율 (0.70 = 70%)
+  const requiredOwnCapital = Math.round(dealAmount * (1 - ltv));
   const requiredLoan = dealAmount - requiredOwnCapital;
 
   const ownCapitalDiff = ownCapital - requiredOwnCapital;
