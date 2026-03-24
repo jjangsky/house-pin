@@ -61,6 +61,9 @@ export interface LiveListing {
   isNaverVerify: boolean;
   isQuick: boolean;
 
+  // 단지 연결
+  complexId?: string;
+
   // 메타
   source: 'live';
 }

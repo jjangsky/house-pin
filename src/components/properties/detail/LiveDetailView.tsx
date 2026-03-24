@@ -12,9 +12,16 @@ import type { LiveListing } from "@/types/listing";
 
 import ImageGallery from "./ImageGallery";
 import AffordabilityAnalysis from "./AffordabilityAnalysis";
+import TaxBreakdownCard from "./TaxBreakdownCard";
+import PropertyTaxCard from "./PropertyTaxCard";
 import RecommendedLoanProducts from "./RecommendedLoanProducts";
 import MonthlyPaymentSimulation from "./MonthlyPaymentSimulation";
+import ComplexInfoCard from "./ComplexInfoCard";
+import FloorPlanViewer from "./FloorPlanViewer";
+import SchoolInfoCard from "./SchoolInfoCard";
+import AreaPriceComparisonCard from "./AreaPriceComparisonCard";
 import PremiumRateBadge from "../PremiumRateBadge";
+import { useComplexDetail } from "@/lib/hooks/useComplexDetail";
 
 const PROPERTY_TYPE_CONFIG: Record<
   string,
@@ -36,6 +43,9 @@ export default function LiveDetailView({ listing }: LiveDetailViewProps) {
   const properties = useHousePinStore((s) => s.properties);
 
   const affordablePrice = loanResult?.affordablePrice ?? 0;
+
+  // 단지 상세 (complexId가 있을 때만 fetch)
+  const { data: complexDetail } = useComplexDetail(listing.complexId ?? null);
 
   const propertyLike = useMemo(
     () => liveListingToProperty(listing),
@@ -152,6 +162,34 @@ export default function LiveDetailView({ listing }: LiveDetailViewProps) {
           assetInput={assetInput}
           loanResult={loanResult}
         />
+      )}
+
+      {/* 세금/부대비용 */}
+      <TaxBreakdownCard
+        purchasePrice={listing.askingPrice}
+        numberOfHomes={assetInput.numberOfHomes}
+      />
+      <PropertyTaxCard purchasePrice={listing.askingPrice} />
+
+      {/* 단지 상세 (complexId 있을 때만) */}
+      {complexDetail && (
+        <>
+          <ComplexInfoCard complex={complexDetail} />
+          {complexDetail.spaces.length > 0 && (
+            <FloorPlanViewer spaces={complexDetail.spaces} />
+          )}
+          {(complexDetail.education.elementary.length > 0 ||
+            complexDetail.education.middle.length > 0 ||
+            complexDetail.education.high.length > 0) && (
+            <SchoolInfoCard education={complexDetail.education} />
+          )}
+          {complexDetail.priceComparison.length > 0 && (
+            <AreaPriceComparisonCard
+              priceComparison={complexDetail.priceComparison}
+              nearComplexes={complexDetail.nearComplexes}
+            />
+          )}
+        </>
       )}
 
       {/* 추천 대출 상품 */}
