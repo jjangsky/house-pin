@@ -7,6 +7,7 @@ import { useHousePinStore } from "@/store/useHousePinStore";
 import { calculateLoanResult } from "@/lib/calculation";
 import AffordabilityCard from "@/components/result/AffordabilityCard";
 import PolicyLoanCard from "@/components/result/PolicyLoanCard";
+import PolicyBenefitCard from "@/components/result/PolicyBenefitCard";
 import LoanSlider from "@/components/result/LoanSlider";
 import BankComparisonTable from "@/components/result/BankComparisonTable";
 import ScenarioComparisonCard from "@/components/result/ScenarioComparisonCard";
@@ -74,6 +75,8 @@ export default function ResultPage() {
         <AffordabilityCard />
 
         <PolicyLoanCard />
+
+        <PolicyBenefitCard />
 
         <LoanSlider onLoanAmountChange={handleLoanAmountChange} />
 
