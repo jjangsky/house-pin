@@ -3,13 +3,16 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Card, Badge } from "@/components/common";
+import BargainBadge from "@/components/properties/BargainBadge";
 import { formatToKoreanWon, sqmToPyeong } from "@/lib/utils/format";
 import { generateLiveSlug } from "@/lib/utils/listingAdapter";
 import type { LiveListing } from "@/types/listing";
+import type { BargainScore } from "@/types/bargain";
 
 interface LivePropertyCardProps {
   listing: LiveListing;
   affordablePrice: number;
+  bargainScore?: BargainScore;
   onClick?: () => void;
 }
 
@@ -28,6 +31,7 @@ const PROPERTY_TYPE_CONFIG: Record<
 export default function LivePropertyCard({
   listing,
   affordablePrice,
+  bargainScore,
   onClick,
 }: LivePropertyCardProps) {
   const router = useRouter();
@@ -57,9 +61,16 @@ export default function LivePropertyCard({
 
   return (
     <Card
-      className="flex cursor-pointer gap-4 transition-transform duration-150 active:scale-[0.98]"
+      className="relative flex cursor-pointer gap-4 transition-transform duration-150 active:scale-[0.98]"
       onClick={handleClick}
     >
+      {/* 급매 뱃지 */}
+      {bargainScore && bargainScore.grade !== 'overpriced' && (
+        <div className="absolute right-3 top-3 z-10">
+          <BargainBadge score={bargainScore} />
+        </div>
+      )}
+
       {/* 썸네일 */}
       <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-[10px] bg-border/30">
         {thumbnailUrl ? (
