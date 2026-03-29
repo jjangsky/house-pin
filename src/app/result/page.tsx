@@ -9,6 +9,7 @@ import AffordabilityCard from "@/components/result/AffordabilityCard";
 import PolicyLoanCard from "@/components/result/PolicyLoanCard";
 import LoanSlider from "@/components/result/LoanSlider";
 import BankComparisonTable from "@/components/result/BankComparisonTable";
+import ScenarioComparisonCard from "@/components/result/ScenarioComparisonCard";
 
 /** 기본 시장 금리 (시중 평균) */
 const DEFAULT_MARKET_RATE = 4.0;
@@ -77,6 +78,11 @@ export default function ResultPage() {
         <LoanSlider onLoanAmountChange={handleLoanAmountChange} />
 
         <BankComparisonTable loanAmount={loanAmount} />
+
+        <ScenarioComparisonCard
+          assetInput={assetInput}
+          loanResult={loanResult}
+        />
       </div>
 
       <div className="mt-10">
