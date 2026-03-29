@@ -85,3 +85,48 @@ export const MOVING_COST_TABLE = [
 
 /** 월 관리비 추정 단가 (만원/㎡) - 아파트 평균 기준 */
 export const MAINTENANCE_FEE_PER_SQM = 0.3;
+
+// =============================================================================
+// 양도소득세 관련 상수
+// =============================================================================
+
+/** 1세대 1주택 비과세 기준 매도가 (만원) - 12억 */
+export const CAPITAL_GAINS_EXEMPT_LIMIT = 120000;
+
+/** 1세대 1주택 비과세 최소 보유기간 (년) */
+export const EXEMPT_MIN_HOLDING_YEARS = 2;
+
+/** 양도소득세 누진세율 구간 (만원 기준) */
+export const CAPITAL_GAINS_TAX_BRACKETS = [
+  { maxGain: 1400, rate: 0.06, deduction: 0 },
+  { maxGain: 5000, rate: 0.15, deduction: 126 },
+  { maxGain: 8800, rate: 0.24, deduction: 576 },
+  { maxGain: 15000, rate: 0.35, deduction: 1544 },
+  { maxGain: 30000, rate: 0.38, deduction: 1994 },
+  { maxGain: 50000, rate: 0.40, deduction: 2594 },
+  { maxGain: 100000, rate: 0.42, deduction: 3594 },
+  { maxGain: Infinity, rate: 0.45, deduction: 6594 },
+] as const;
+
+/**
+ * 장기보유특별공제율 (보유기간별)
+ * 3년 이상부터 적용, 연 2%씩 (일반), 10년 이상 최대 30%
+ */
+export const LONG_TERM_HOLDING_DEDUCTION: Record<number, number> = {
+  3: 0.06,
+  4: 0.08,
+  5: 0.10,
+  6: 0.12,
+  7: 0.14,
+  8: 0.16,
+  9: 0.18,
+  10: 0.20,
+  11: 0.22,
+  12: 0.24,
+  13: 0.26,
+  14: 0.28,
+  15: 0.30,
+};
+
+/** 지방소득세율 (양도세의 10%) */
+export const LOCAL_INCOME_TAX_RATE = 0.10;
