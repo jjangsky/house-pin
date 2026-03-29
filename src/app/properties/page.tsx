@@ -8,6 +8,7 @@ import { formatToKoreanWon } from "@/lib/utils/format";
 import type { Property } from "@/types";
 import type { LiveListing } from "@/types/listing";
 import PropertyView from "@/components/properties/PropertyView";
+import NeighborhoodReportCard from "@/components/properties/NeighborhoodReportCard";
 import LoadingProgress from "@/components/properties/LoadingProgress";
 
 export default function PropertiesPage() {
@@ -174,6 +175,22 @@ export default function PropertiesPage() {
           >
             다시 시도
           </Button>
+        </div>
+      )}
+
+      {/* 동네 가치 리포트 */}
+      {!loading && !error && localProperties.length > 0 && (
+        <div className="mb-5">
+          {selectedRegions.map((region) => (
+            <NeighborhoodReportCard
+              key={region.code}
+              properties={localProperties.filter(
+                (p) => p.regionCode === region.code,
+              )}
+              regionCode={region.code}
+              regionName={`${region.sido} ${region.sigungu}`}
+            />
+          ))}
         </div>
       )}
 
