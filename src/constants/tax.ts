@@ -68,3 +68,20 @@ export const STAMP_TAX_TABLE = [
 
 /** 법무사 수수료 추정 (만원) */
 export const ESTIMATED_LAWYER_FEE = 50;
+
+// =============================================================================
+// TCO 관련 상수
+// =============================================================================
+
+/** 이사비용 추정 구간 (전용면적 ㎡ 기준, 만원) */
+export const MOVING_COST_TABLE = [
+  { maxArea: 40, cost: 60 },     // ~12평: 원룸~소형
+  { maxArea: 60, cost: 90 },     // ~18평: 소형 아파트
+  { maxArea: 85, cost: 130 },    // ~25평: 중형 아파트 (국민평형)
+  { maxArea: 115, cost: 170 },   // ~35평: 중대형
+  { maxArea: 150, cost: 220 },   // ~45평: 대형
+  { maxArea: Infinity, cost: 280 }, // 45평 초과
+] as const;
+
+/** 월 관리비 추정 단가 (만원/㎡) - 아파트 평균 기준 */
+export const MAINTENANCE_FEE_PER_SQM = 0.3;
