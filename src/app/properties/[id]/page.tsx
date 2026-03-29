@@ -7,9 +7,11 @@ import { useHousePinStore } from "@/store/useHousePinStore";
 import { findPropertyBySlug } from "@/lib/utils/property";
 import { isLiveSlug, parseLiveSlug } from "@/lib/utils/listingAdapter";
 import { calculatePropertyAffordability } from "@/lib/calculation/affordability";
+import { calculateMonthlyPayment } from "@/lib/calculation";
 import PropertyDetailHeader from "@/components/properties/detail/PropertyDetailHeader";
 import PropertyLocationMap from "@/components/properties/detail/PropertyLocationMap";
 import AffordabilityAnalysis from "@/components/properties/detail/AffordabilityAnalysis";
+import TcoCard from "@/components/properties/detail/TcoCard";
 import TaxBreakdownCard from "@/components/properties/detail/TaxBreakdownCard";
 import PropertyTaxCard from "@/components/properties/detail/PropertyTaxCard";
 import RecommendedLoanProducts from "@/components/properties/detail/RecommendedLoanProducts";
@@ -200,6 +202,31 @@ export default function PropertyDetailPage({
           numberOfHomes={assetInput.numberOfHomes}
         />
         <PropertyTaxCard purchasePrice={property.dealAmount} />
+
+        {/* Section 3.6: 진짜 비용 (TCO) */}
+        {(() => {
+          const defaultRate = 4.0;
+          const monthlyPayment = calculateMonthlyPayment(
+            affordability.requiredLoan,
+            defaultRate,
+            assetInput.loanTermYears,
+          );
+          // 첫 해 이자 추정: 월 상환액 × 12 - (원금 / 대출기간)
+          const annualPayment = monthlyPayment * 12;
+          const annualPrincipal = Math.round(
+            affordability.requiredLoan / assetInput.loanTermYears,
+          );
+          const annualInterest = Math.max(0, annualPayment - annualPrincipal);
+          return (
+            <TcoCard
+              purchasePrice={property.dealAmount}
+              numberOfHomes={assetInput.numberOfHomes}
+              area={property.area}
+              monthlyLoanPayment={monthlyPayment}
+              annualLoanInterest={annualInterest}
+            />
+          );
+        })()}
 
         {/* Section 4: 추천 대출 상품 */}
         <RecommendedLoanProducts
