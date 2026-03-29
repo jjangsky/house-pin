@@ -156,6 +156,20 @@ body {
   animation: float 2s ease-in-out infinite;
 }
 
+/* Scroll line animation — accent bar slides down the track */
+@keyframes scroll-line {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(calc(12 * 4px));
+  }
+}
+
+.scroll-line-anim {
+  animation: scroll-line 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
 /* CTA section animations */
 .cta-card {
   transition: transform 0.3s ease, box-shadow 0.3s ease;

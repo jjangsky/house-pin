@@ -81,24 +81,16 @@ export default function HeroSection() {
 
       <button
         onClick={scrollToNext}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-secondary transition-colors hover:text-primary"
+        className="group absolute right-5 top-1/2 -translate-y-1/2 sm:right-10"
         aria-label="아래로 스크롤"
       >
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-xs">스크롤하여 알아보기</span>
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="animate-float"
-          >
-            <path d="M6 9l6 6 6-6" />
-          </svg>
+        <div className="flex flex-col items-center gap-4">
+          <span className="text-[11px] font-medium tracking-[0.15em] text-secondary/60 transition-colors group-hover:text-accent [writing-mode:vertical-rl]">
+            SCROLL
+          </span>
+          <div className="relative h-12 w-px overflow-hidden bg-border/50">
+            <div className="scroll-line-anim absolute left-0 top-0 h-5 w-px bg-accent" />
+          </div>
         </div>
       </button>
     </section>
