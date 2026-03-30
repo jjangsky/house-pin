@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { StepIndicator, Button } from "@/components/common";
-import { useHousePinStore } from "@/store/useHousePinStore";
+import {
+  StepIndicator,
+  Button,
+  CollapsibleCard,
+} from "@/components/common";
+import { useHousePinStore, useHasHydrated } from "@/store/useHousePinStore";
 import { calculateLoanResult } from "@/lib/calculation";
 import AffordabilityCard from "@/components/result/AffordabilityCard";
-import PolicyLoanCard from "@/components/result/PolicyLoanCard";
-import PolicyBenefitCard from "@/components/result/PolicyBenefitCard";
-import LoanSlider from "@/components/result/LoanSlider";
-import BankComparisonTable from "@/components/result/BankComparisonTable";
+import PolicyCard from "@/components/result/PolicyCard";
+import LoanExplorer from "@/components/result/LoanExplorer";
 import ScenarioComparisonCard from "@/components/result/ScenarioComparisonCard";
 import UpgradeSimulatorCard from "@/components/result/UpgradeSimulatorCard";
 
@@ -23,10 +25,12 @@ export default function ResultPage() {
   const setLoanResult = useHousePinStore((s) => s.setLoanResult);
   const setCurrentStep = useHousePinStore((s) => s.setCurrentStep);
 
-  const [loanAmount, setLoanAmount] = useState(0);
+  const hasHydrated = useHasHydrated();
 
   // 대출 계산 실행
   useEffect(() => {
+    if (!hasHydrated) return;
+
     // 자산 정보가 없으면 입력 페이지로 리다이렉트
     if (assetInput.annualIncome <= 0 && assetInput.ownCapital <= 0) {
       router.replace("/input");
@@ -35,13 +39,8 @@ export default function ResultPage() {
 
     const result = calculateLoanResult(assetInput, DEFAULT_MARKET_RATE);
     setLoanResult(result);
-    setLoanAmount(result.finalLoanLimit);
     setCurrentStep(2);
-  }, [assetInput, setLoanResult, setCurrentStep, router]);
-
-  const handleLoanAmountChange = useCallback((amount: number) => {
-    setLoanAmount(amount);
-  }, []);
+  }, [hasHydrated, assetInput, setLoanResult, setCurrentStep, router]);
 
   const handleNext = () => {
     router.push("/region");
@@ -75,20 +74,28 @@ export default function ResultPage() {
       <div className="flex flex-col gap-6">
         <AffordabilityCard />
 
-        <PolicyLoanCard />
+        <PolicyCard />
 
-        <PolicyBenefitCard />
+        <LoanExplorer />
 
-        <LoanSlider onLoanAmountChange={handleLoanAmountChange} />
+        <CollapsibleCard
+          title="전세 vs 매매 비교"
+          defaultOpen={false}
+          preview="전세 유지 vs 매매 전환"
+        >
+          <ScenarioComparisonCard
+            assetInput={assetInput}
+            loanResult={loanResult}
+          />
+        </CollapsibleCard>
 
-        <BankComparisonTable loanAmount={loanAmount} />
-
-        <ScenarioComparisonCard
-          assetInput={assetInput}
-          loanResult={loanResult}
-        />
-
-        <UpgradeSimulatorCard />
+        <CollapsibleCard
+          title="갈아타기 시뮬레이터"
+          defaultOpen={false}
+          preview="1주택 갈아타기"
+        >
+          <UpgradeSimulatorCard />
+        </CollapsibleCard>
       </div>
 
       <div className="mt-10">
