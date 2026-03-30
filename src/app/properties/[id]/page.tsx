@@ -3,7 +3,7 @@
 import { use, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/common";
-import { useHousePinStore } from "@/store/useHousePinStore";
+import { useHousePinStore, useHasHydrated } from "@/store/useHousePinStore";
 import { findPropertyBySlug } from "@/lib/utils/property";
 import { isLiveSlug, parseLiveSlug } from "@/lib/utils/listingAdapter";
 import { calculatePropertyAffordability } from "@/lib/calculation/affordability";
@@ -27,11 +27,21 @@ export default function PropertyDetailPage({
   const { id } = use(params);
   const router = useRouter();
 
+  const hasHydrated = useHasHydrated();
   const loanResult = useHousePinStore((s) => s.loanResult);
   const assetInput = useHousePinStore((s) => s.assetInput);
   const properties = useHousePinStore((s) => s.properties);
   const liveListings = useHousePinStore((s) => s.liveListings);
   const affordablePrice = loanResult?.affordablePrice ?? 0;
+
+  // 하이드레이션 완료 전 로딩 표시
+  if (!hasHydrated) {
+    return (
+      <main className="flex items-center justify-center py-24">
+        <p className="text-secondary">불러오는 중...</p>
+      </main>
+    );
+  }
 
   // 가드: 대출 계산 결과 없음
   if (!loanResult) {

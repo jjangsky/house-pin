@@ -84,4 +84,6 @@ export interface HousePinStore {
   setLiveListings: (listings: import('./listing').LiveListing[]) => void;
 
   reset: () => void;
+
+  _hasHydrated: boolean;
 }
