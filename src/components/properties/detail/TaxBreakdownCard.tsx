@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Card } from "@/components/common";
-import { formatToKoreanWon } from "@/lib/utils/format";
+import { formatWon } from "@/lib/utils/format";
 import { calculateTotalInitialCost } from "@/lib/calculation/tax";
 
 interface TaxBreakdownCardProps {
@@ -25,7 +25,7 @@ function Row({
       <span
         className={`text-sm ${bold ? "font-bold text-primary" : "font-semibold text-primary"}`}
       >
-        {formatToKoreanWon(Math.round(value))}
+        {formatWon(value)}
       </span>
     </div>
   );
@@ -62,7 +62,7 @@ export default function TaxBreakdownCard({
         {/* 총 초기비용 히어로 */}
         <div className="rounded-[12px] bg-surface px-4 py-5 text-center">
           <p className="text-2xl font-bold text-accent">
-            {formatToKoreanWon(Math.round(result.totalUpfront))}
+            {formatWon(result.totalUpfront)}
           </p>
           <p className="mt-1 text-xs text-secondary">
             매매가 외 추가 필요금액
@@ -83,7 +83,7 @@ export default function TaxBreakdownCard({
           <div className="flex items-center justify-between pl-2">
             <span className="text-sm font-bold text-primary">소계</span>
             <span className="text-sm font-bold text-primary">
-              {formatToKoreanWon(Math.round(acquisitionTax.totalAcquisitionTax))}
+              {formatWon(acquisitionTax.totalAcquisitionTax)}
             </span>
           </div>
         </div>
@@ -114,9 +114,7 @@ export default function TaxBreakdownCard({
           <div className="flex items-center justify-between pl-2">
             <span className="text-sm font-bold text-primary">소계</span>
             <span className="text-sm font-bold text-primary">
-              {formatToKoreanWon(
-                Math.round(registrationCost.totalRegistrationCost),
-              )}
+              {formatWon(registrationCost.totalRegistrationCost)}
             </span>
           </div>
         </div>
@@ -128,7 +126,7 @@ export default function TaxBreakdownCard({
               실제 필요 총액
             </span>
             <span className="text-lg font-bold text-primary">
-              {formatToKoreanWon(Math.round(result.totalRequired))}
+              {formatWon(result.totalRequired)}
             </span>
           </div>
           <p className="mt-2 text-xs text-secondary">

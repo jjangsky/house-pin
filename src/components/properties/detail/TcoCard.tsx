@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Card } from "@/components/common";
-import { formatToKoreanWon } from "@/lib/utils/format";
+import { formatWon } from "@/lib/utils/format";
 import { calculateTco } from "@/lib/calculation/tco";
 import type { TcoInput } from "@/types/tax";
 
@@ -31,7 +31,7 @@ function CostRow({
       <span
         className={`text-sm font-semibold ${sub ? "text-secondary" : "text-primary"}`}
       >
-        {formatToKoreanWon(Math.round(value))}
+        {formatWon(value)}
       </span>
     </div>
   );
@@ -63,12 +63,12 @@ export default function TcoCard({
         <div className="rounded-[12px] bg-accent-light px-4 py-5 text-center">
           <p className="text-xs font-medium text-accent">첫 해 총 비용</p>
           <p className="mt-1 text-2xl font-bold text-accent">
-            {formatToKoreanWon(Math.round(tco.firstYearTotal))}
+            {formatWon(tco.firstYearTotal)}
           </p>
           <p className="mt-2 text-xs text-secondary">
             월 환산{" "}
             <span className="font-semibold text-primary">
-              {formatToKoreanWon(Math.round(tco.monthlyRecurringTotal))}
+              {formatWon(tco.monthlyRecurringTotal)}
             </span>
             {" "}(반복 비용 기준)
           </p>
@@ -79,7 +79,7 @@ export default function TcoCard({
           <div className="flex items-center justify-between">
             <p className="text-sm font-bold text-primary">1회성 비용</p>
             <span className="text-sm font-bold text-primary">
-              {formatToKoreanWon(Math.round(tco.oneTimeCosts.total))}
+              {formatWon(tco.oneTimeCosts.total)}
             </span>
           </div>
           <div className="flex flex-col gap-1.5">
@@ -113,7 +113,7 @@ export default function TcoCard({
           <div className="flex items-center justify-between">
             <p className="text-sm font-bold text-primary">매월 반복 비용</p>
             <span className="text-sm font-bold text-primary">
-              {formatToKoreanWon(Math.round(tco.monthlyCosts.total))}
+              {formatWon(tco.monthlyCosts.total)}
             </span>
           </div>
           <div className="flex flex-col gap-1.5">

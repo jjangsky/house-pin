@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Card } from "@/components/common";
-import { formatToKoreanWon } from "@/lib/utils/format";
+import { formatWon } from "@/lib/utils/format";
 import { calculatePropertyTax } from "@/lib/calculation/tax";
 
 interface PropertyTaxCardProps {
@@ -23,11 +23,11 @@ export default function PropertyTaxCard({
         {/* 히어로 */}
         <p className="text-primary">
           <span className="text-xl font-bold">
-            연간 약 {formatToKoreanWon(Math.round(result.totalAnnualHoldingTax))}
+            연간 약 {formatWon(result.totalAnnualHoldingTax)}
           </span>
           <span className="mx-2 text-border">·</span>
           <span className="text-base text-secondary">
-            월 약 {formatToKoreanWon(Math.round(result.monthlyPropertyTax))}
+            월 약 {formatWon(result.monthlyPropertyTax)}
           </span>
         </p>
 
@@ -36,19 +36,19 @@ export default function PropertyTaxCard({
           <div className="flex items-center justify-between">
             <span className="text-sm text-secondary">재산세</span>
             <span className="text-sm font-semibold text-primary">
-              {formatToKoreanWon(Math.round(result.annualPropertyTax))}
+              {formatWon(result.annualPropertyTax)}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-secondary">도시지역분</span>
             <span className="text-sm font-semibold text-primary">
-              {formatToKoreanWon(Math.round(result.urbanTax))}
+              {formatWon(result.urbanTax)}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm text-secondary">지방교육세</span>
             <span className="text-sm font-semibold text-primary">
-              {formatToKoreanWon(Math.round(result.localEducationTax))}
+              {formatWon(result.localEducationTax)}
             </span>
           </div>
         </div>

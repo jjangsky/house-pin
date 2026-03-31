@@ -22,6 +22,14 @@ export function formatToKoreanWon(amount: number): string {
 }
 
 /**
+ * 만원 단위 숫자를 반올림 후 한글 금액 표현으로 변환 (편의 래퍼)
+ * @param amount 만원 단위 금액
+ */
+export function formatWon(amount: number): string {
+  return formatToKoreanWon(Math.round(amount));
+}
+
+/**
  * 숫자를 콤마 포맷팅
  */
 export function formatWithComma(value: number): string {
