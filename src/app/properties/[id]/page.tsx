@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useMemo } from "react";
+import { use, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/common";
 import { useHousePinStore, useHasHydrated } from "@/store/useHousePinStore";
@@ -155,10 +155,31 @@ export default function PropertyDetailPage({
     );
   }
 
+  const [tab, setTab] = useState<"overview" | "cost">("overview");
+
   const affordability = useMemo(
     () => calculatePropertyAffordability(property, assetInput, loanResult),
     [property, assetInput, loanResult],
   );
+
+  // TCO 계산용 값 미리 산출
+  const defaultRate = 4.0;
+  const tcoMonthlyPayment = useMemo(
+    () =>
+      calculateMonthlyPayment(
+        affordability.requiredLoan,
+        defaultRate,
+        assetInput.loanTermYears,
+      ),
+    [affordability.requiredLoan, assetInput.loanTermYears],
+  );
+  const tcoAnnualInterest = useMemo(() => {
+    const annualPayment = tcoMonthlyPayment * 12;
+    const annualPrincipal = Math.round(
+      affordability.requiredLoan / assetInput.loanTermYears,
+    );
+    return Math.max(0, annualPayment - annualPrincipal);
+  }, [tcoMonthlyPayment, affordability.requiredLoan, assetInput.loanTermYears]);
 
   return (
     <main className="pb-12">
@@ -188,82 +209,77 @@ export default function PropertyDetailPage({
         <h2 className="text-lg font-semibold text-primary">매물 상세</h2>
       </div>
 
-      {/* 섹션들 */}
-      <div className="flex flex-col gap-6">
-        {/* Section 1: 매물 기본 정보 */}
-        <PropertyDetailHeader
-          property={property}
-          affordablePrice={affordablePrice}
-        />
-
-        {/* Section 2: 위치 정보 */}
-        <PropertyLocationMap property={property} />
-
-        {/* Section 3: 구매 가능성 분석 */}
-        <AffordabilityAnalysis
-          property={property}
-          assetInput={assetInput}
-          loanResult={loanResult}
-        />
-
-        {/* Section 3.5: 세금/부대비용 */}
-        <TaxBreakdownCard
-          purchasePrice={property.dealAmount}
-          numberOfHomes={assetInput.numberOfHomes}
-        />
-        <PropertyTaxCard purchasePrice={property.dealAmount} />
-
-        {/* Section 3.6: 진짜 비용 (TCO) */}
-        {(() => {
-          const defaultRate = 4.0;
-          const monthlyPayment = calculateMonthlyPayment(
-            affordability.requiredLoan,
-            defaultRate,
-            assetInput.loanTermYears,
-          );
-          // 첫 해 이자 추정: 월 상환액 × 12 - (원금 / 대출기간)
-          const annualPayment = monthlyPayment * 12;
-          const annualPrincipal = Math.round(
-            affordability.requiredLoan / assetInput.loanTermYears,
-          );
-          const annualInterest = Math.max(0, annualPayment - annualPrincipal);
-          return (
-            <TcoCard
-              purchasePrice={property.dealAmount}
-              numberOfHomes={assetInput.numberOfHomes}
-              area={property.area}
-              monthlyLoanPayment={monthlyPayment}
-              annualLoanInterest={annualInterest}
-            />
-          );
-        })()}
-
-        {/* Section 4: 추천 대출 상품 */}
-        <RecommendedLoanProducts
-          requiredLoan={
-            affordability.requiredLoan
-          }
-          loanResult={loanResult}
-          assetInput={assetInput}
-        />
-
-        {/* Section 5: 월 상환 시뮬레이션 */}
-        <MonthlyPaymentSimulation
-          requiredLoan={
-            affordability.requiredLoan
-          }
-          loanTermYears={assetInput.loanTermYears}
-          annualIncome={assetInput.annualIncome}
-          defaultRepaymentType={assetInput.repaymentType}
-        />
-
-        {/* Section 6: 비슷한 매물 */}
-        <SimilarProperties
-          target={property}
-          allProperties={properties}
-          affordablePrice={affordablePrice}
-        />
+      {/* 탭 바 */}
+      <div className="mb-4 flex gap-2">
+        <button
+          onClick={() => setTab("overview")}
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+            tab === "overview"
+              ? "bg-primary text-white"
+              : "bg-surface text-secondary"
+          }`}
+        >
+          개요
+        </button>
+        <button
+          onClick={() => setTab("cost")}
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+            tab === "cost"
+              ? "bg-primary text-white"
+              : "bg-surface text-secondary"
+          }`}
+        >
+          비용·대출
+        </button>
       </div>
+
+      {/* 탭 콘텐츠 */}
+      {tab === "overview" && (
+        <div className="flex flex-col gap-6">
+          <PropertyDetailHeader
+            property={property}
+            affordablePrice={affordablePrice}
+          />
+          <PropertyLocationMap property={property} />
+          <AffordabilityAnalysis
+            property={property}
+            assetInput={assetInput}
+            loanResult={loanResult}
+          />
+          <SimilarProperties
+            target={property}
+            allProperties={properties}
+            affordablePrice={affordablePrice}
+          />
+        </div>
+      )}
+      {tab === "cost" && (
+        <div className="flex flex-col gap-6">
+          <TcoCard
+            purchasePrice={property.dealAmount}
+            numberOfHomes={assetInput.numberOfHomes}
+            area={property.area}
+            monthlyLoanPayment={tcoMonthlyPayment}
+            annualLoanInterest={tcoAnnualInterest}
+          />
+          <TaxBreakdownCard
+            purchasePrice={property.dealAmount}
+            numberOfHomes={assetInput.numberOfHomes}
+          />
+          <PropertyTaxCard purchasePrice={property.dealAmount} />
+          <RecommendedLoanProducts
+            requiredLoan={affordability.requiredLoan}
+            loanResult={loanResult}
+            assetInput={assetInput}
+          />
+          <MonthlyPaymentSimulation
+            requiredLoan={affordability.requiredLoan}
+            loanTermYears={assetInput.loanTermYears}
+            annualIncome={assetInput.annualIncome}
+            defaultRepaymentType={assetInput.repaymentType}
+          />
+        </div>
+      )}
 
       {/* 하단 CTA */}
       <div className="mt-10">
