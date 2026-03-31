@@ -2,7 +2,7 @@
 
 import { use, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/common";
+import { BackButton, Button } from "@/components/common";
 import { useHousePinStore, useHasHydrated } from "@/store/useHousePinStore";
 import { findPropertyBySlug } from "@/lib/utils/property";
 import { isLiveSlug, parseLiveSlug } from "@/lib/utils/listingAdapter";
@@ -115,15 +115,7 @@ export default function PropertyDetailPage({
     return (
       <main className="pb-12">
         <div className="mb-6 flex items-center gap-3">
-          <button
-            onClick={() => router.back()}
-            className="flex h-9 w-9 items-center justify-center rounded-[10px] text-secondary transition-colors hover:bg-surface active:bg-border"
-            aria-label="뒤로가기"
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
+          <BackButton />
           <h2 className="text-lg font-semibold text-primary">매물 상세</h2>
         </div>
         <LiveDetailView listing={liveListing} />
@@ -185,27 +177,7 @@ export default function PropertyDetailPage({
     <main className="pb-12">
       {/* 헤더: 뒤로가기 */}
       <div className="mb-6 flex items-center gap-3">
-        <button
-          onClick={() => router.back()}
-          className="flex h-9 w-9 items-center justify-center rounded-[10px] text-secondary transition-colors hover:bg-surface active:bg-border"
-          aria-label="뒤로가기"
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M12.5 15L7.5 10L12.5 5"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
+        <BackButton />
         <h2 className="text-lg font-semibold text-primary">매물 상세</h2>
       </div>
 
