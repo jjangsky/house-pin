@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { Card, Badge, Button } from "@/components/common";
-import { formatToKoreanWon } from "@/lib/utils/format";
+import { formatWon, formatToKoreanWon } from "@/lib/utils/format";
 import { calculateMonthlyPayment } from "@/lib/calculation";
 import type { LoanResult, AssetInput } from "@/types";
 
@@ -171,7 +171,7 @@ export default function RecommendedLoanProducts({
                       {product.minRate.toFixed(2)}%
                     </span>
                     <span className="text-xs text-secondary">
-                      월 {formatToKoreanWon(Math.round(product.monthlyPayment))}
+                      월 {formatWon(product.monthlyPayment)}
                     </span>
                   </div>
                 </div>
