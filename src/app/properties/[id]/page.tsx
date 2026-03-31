@@ -34,6 +34,44 @@ export default function PropertyDetailPage({
   const liveListings = useHousePinStore((s) => s.liveListings);
   const affordablePrice = loanResult?.affordablePrice ?? 0;
 
+  // --- 모든 Hook은 조건부 return 전에 호출 (React Rules of Hooks) ---
+  const [tab, setTab] = useState<"overview" | "cost">("overview");
+
+  // 실거래 매물 slug 매칭 (guard 이전에 계산)
+  const property =
+    !isLiveSlug(id) && properties.length > 0
+      ? findPropertyBySlug(properties, id)
+      : null;
+
+  const affordability = useMemo(
+    () =>
+      property && assetInput && loanResult
+        ? calculatePropertyAffordability(property, assetInput, loanResult)
+        : null,
+    [property, assetInput, loanResult],
+  );
+
+  const defaultRate = 4.0;
+  const tcoMonthlyPayment = useMemo(
+    () =>
+      affordability && assetInput
+        ? calculateMonthlyPayment(
+            affordability.requiredLoan,
+            defaultRate,
+            assetInput.loanTermYears,
+          )
+        : 0,
+    [affordability, assetInput],
+  );
+  const tcoAnnualInterest = useMemo(() => {
+    if (!affordability || !assetInput) return 0;
+    const annualPayment = tcoMonthlyPayment * 12;
+    const annualPrincipal = Math.round(
+      affordability.requiredLoan / assetInput.loanTermYears,
+    );
+    return Math.max(0, annualPayment - annualPrincipal);
+  }, [tcoMonthlyPayment, affordability, assetInput]);
+
   // 하이드레이션 완료 전 로딩 표시
   if (!hasHydrated) {
     return (
@@ -123,9 +161,6 @@ export default function PropertyDetailPage({
     );
   }
 
-  // 실거래 매물 slug 매칭
-  const property = findPropertyBySlug(properties, id);
-
   if (!property) {
     return (
       <main className="flex flex-col items-center justify-center py-24">
@@ -146,32 +181,6 @@ export default function PropertyDetailPage({
       </main>
     );
   }
-
-  const [tab, setTab] = useState<"overview" | "cost">("overview");
-
-  const affordability = useMemo(
-    () => calculatePropertyAffordability(property, assetInput, loanResult),
-    [property, assetInput, loanResult],
-  );
-
-  // TCO 계산용 값 미리 산출
-  const defaultRate = 4.0;
-  const tcoMonthlyPayment = useMemo(
-    () =>
-      calculateMonthlyPayment(
-        affordability.requiredLoan,
-        defaultRate,
-        assetInput.loanTermYears,
-      ),
-    [affordability.requiredLoan, assetInput.loanTermYears],
-  );
-  const tcoAnnualInterest = useMemo(() => {
-    const annualPayment = tcoMonthlyPayment * 12;
-    const annualPrincipal = Math.round(
-      affordability.requiredLoan / assetInput.loanTermYears,
-    );
-    return Math.max(0, annualPayment - annualPrincipal);
-  }, [tcoMonthlyPayment, affordability.requiredLoan, assetInput.loanTermYears]);
 
   return (
     <main className="pb-12">
@@ -209,17 +218,17 @@ export default function PropertyDetailPage({
       {tab === "overview" && (
         <div className="flex flex-col gap-6">
           <PropertyDetailHeader
-            property={property}
+            property={property!}
             affordablePrice={affordablePrice}
           />
-          <PropertyLocationMap property={property} />
+          <PropertyLocationMap property={property!} />
           <AffordabilityAnalysis
-            property={property}
+            property={property!}
             assetInput={assetInput}
-            loanResult={loanResult}
+            loanResult={loanResult!}
           />
           <SimilarProperties
-            target={property}
+            target={property!}
             allProperties={properties}
             affordablePrice={affordablePrice}
           />
@@ -228,24 +237,24 @@ export default function PropertyDetailPage({
       {tab === "cost" && (
         <div className="flex flex-col gap-6">
           <TcoCard
-            purchasePrice={property.dealAmount}
+            purchasePrice={property!.dealAmount}
             numberOfHomes={assetInput.numberOfHomes}
-            area={property.area}
+            area={property!.area}
             monthlyLoanPayment={tcoMonthlyPayment}
             annualLoanInterest={tcoAnnualInterest}
           />
           <TaxBreakdownCard
-            purchasePrice={property.dealAmount}
+            purchasePrice={property!.dealAmount}
             numberOfHomes={assetInput.numberOfHomes}
           />
-          <PropertyTaxCard purchasePrice={property.dealAmount} />
+          <PropertyTaxCard purchasePrice={property!.dealAmount} />
           <RecommendedLoanProducts
-            requiredLoan={affordability.requiredLoan}
-            loanResult={loanResult}
+            requiredLoan={affordability!.requiredLoan}
+            loanResult={loanResult!}
             assetInput={assetInput}
           />
           <MonthlyPaymentSimulation
-            requiredLoan={affordability.requiredLoan}
+            requiredLoan={affordability!.requiredLoan}
             loanTermYears={assetInput.loanTermYears}
             annualIncome={assetInput.annualIncome}
             defaultRepaymentType={assetInput.repaymentType}
