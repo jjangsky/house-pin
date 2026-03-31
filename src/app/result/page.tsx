@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   StepIndicator,
   Button,
@@ -13,7 +14,6 @@ import AffordabilityCard from "@/components/result/AffordabilityCard";
 import PolicyCard from "@/components/result/PolicyCard";
 import LoanExplorer from "@/components/result/LoanExplorer";
 import ScenarioComparisonCard from "@/components/result/ScenarioComparisonCard";
-import UpgradeSimulatorCard from "@/components/result/UpgradeSimulatorCard";
 
 /** 기본 시장 금리 (시중 평균) */
 const DEFAULT_MARKET_RATE = 4.0;
@@ -89,13 +89,36 @@ export default function ResultPage() {
           />
         </CollapsibleCard>
 
-        <CollapsibleCard
-          title="갈아타기 시뮬레이터"
-          defaultOpen={false}
-          preview="1주택 갈아타기"
+        <Link
+          href="/tools/upgrade"
+          className="block rounded-[16px] bg-surface p-5 transition-colors hover:bg-border/30"
         >
-          <UpgradeSimulatorCard />
-        </CollapsibleCard>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-primary">
+                갈아타기 시뮬레이터
+              </p>
+              <p className="mt-1 text-xs text-secondary">
+                1주택자 매도 → 새 집 구매력 계산
+              </p>
+            </div>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+            >
+              <path
+                d="M7.5 5L12.5 10L7.5 15"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-secondary"
+              />
+            </svg>
+          </div>
+        </Link>
       </div>
 
       <div className="mt-10">
