@@ -5,6 +5,7 @@ export { default as Toggle } from "./Toggle";
 export { default as Card } from "./Card";
 export { default as CollapsibleCard } from "./CollapsibleCard";
 export { default as Badge } from "./Badge";
+export { default as DataRow } from "./DataRow";
 export { default as Skeleton } from "./Skeleton";
 export { default as Modal } from "./Modal";
 export { default as Header } from "./Header";

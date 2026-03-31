@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Card } from "@/components/common";
+import { Card, DataRow } from "@/components/common";
 import { formatWon } from "@/lib/utils/format";
 import { calculateTco } from "@/lib/calculation/tco";
 import type { TcoInput } from "@/types/tax";
@@ -12,29 +12,6 @@ interface TcoCardProps {
   area: number;
   monthlyLoanPayment: number;
   annualLoanInterest: number;
-}
-
-function CostRow({
-  label,
-  value,
-  sub,
-}: {
-  label: string;
-  value: number;
-  sub?: boolean;
-}) {
-  return (
-    <div className={`flex items-center justify-between ${sub ? "pl-3" : ""}`}>
-      <span className={`text-sm ${sub ? "text-secondary" : "text-primary"}`}>
-        {label}
-      </span>
-      <span
-        className={`text-sm font-semibold ${sub ? "text-secondary" : "text-primary"}`}
-      >
-        {formatWon(value)}
-      </span>
-    </div>
-  );
 }
 
 export default function TcoCard({
@@ -83,22 +60,22 @@ export default function TcoCard({
             </span>
           </div>
           <div className="flex flex-col gap-1.5">
-            <CostRow
+            <DataRow
               label="취득세 (부가세 포함)"
               value={tco.oneTimeCosts.acquisitionTax}
               sub
             />
-            <CostRow
+            <DataRow
               label="등기비용"
               value={tco.oneTimeCosts.registrationCost}
               sub
             />
-            <CostRow
+            <DataRow
               label="중개수수료"
               value={tco.oneTimeCosts.brokerageFee}
               sub
             />
-            <CostRow
+            <DataRow
               label="이사비용 (추정)"
               value={tco.oneTimeCosts.movingCost}
               sub
@@ -117,17 +94,17 @@ export default function TcoCard({
             </span>
           </div>
           <div className="flex flex-col gap-1.5">
-            <CostRow
+            <DataRow
               label="대출 상환"
               value={tco.monthlyCosts.loanPayment}
               sub
             />
-            <CostRow
+            <DataRow
               label="관리비 (추정)"
               value={tco.monthlyCosts.maintenanceFee}
               sub
             />
-            <CostRow
+            <DataRow
               label="보유세 (월 환산)"
               value={tco.monthlyCosts.holdingTax}
               sub
