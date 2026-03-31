@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Card } from "@/components/common";
+import { Card, DataRow } from "@/components/common";
 import { formatWon } from "@/lib/utils/format";
 import { calculatePropertyTax } from "@/lib/calculation/tax";
 
@@ -33,24 +33,9 @@ export default function PropertyTaxCard({
 
         {/* 항목별 */}
         <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-secondary">재산세</span>
-            <span className="text-sm font-semibold text-primary">
-              {formatWon(result.annualPropertyTax)}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-secondary">도시지역분</span>
-            <span className="text-sm font-semibold text-primary">
-              {formatWon(result.urbanTax)}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-secondary">지방교육세</span>
-            <span className="text-sm font-semibold text-primary">
-              {formatWon(result.localEducationTax)}
-            </span>
-          </div>
+          <DataRow label="재산세" value={result.annualPropertyTax} />
+          <DataRow label="도시지역분" value={result.urbanTax} />
+          <DataRow label="지방교육세" value={result.localEducationTax} />
         </div>
 
         {/* 안내 */}
