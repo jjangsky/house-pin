@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { useHousePinStore } from "@/store/useHousePinStore";
 import { Badge } from "@/components/common";
 import { checkAllPolicyBenefits } from "@/lib/calculation/policyBenefit";
-import { formatToKoreanWon } from "@/lib/utils/format";
+import { formatWon, formatToKoreanWon } from "@/lib/utils/format";
 import type { PolicyBenefit, PolicyBenefitInput } from "@/types/policyBenefit";
 
 export default function PolicyBenefitContent() {
@@ -47,7 +47,7 @@ export default function PolicyBenefitContent() {
           <p className="mt-1 text-sm text-secondary">
             최대{" "}
             <span className="font-semibold text-success">
-              월 {formatToKoreanWon(Math.round(totalMonthlySavings))}
+              월 {formatWon(totalMonthlySavings)}
             </span>{" "}
             절약 가능
           </p>
@@ -156,7 +156,7 @@ function BenefitItem({ benefit, isBest }: BenefitItemProps) {
       {(benefit.monthlySavings ?? 0) > 0 && (
         <p className="mt-3 text-xs text-success">
           {isLoan
-            ? `시중 금리 대비 월 약 ${formatToKoreanWon(Math.round(benefit.monthlySavings!))} 절약`
+            ? `시중 금리 대비 월 약 ${formatWon(benefit.monthlySavings!)} 절약`
             : `최대 ${formatToKoreanWon(benefit.monthlySavings!)} 감면`}
         </p>
       )}

@@ -26,7 +26,11 @@
       "WebFetch(domain:developers.kakao.com)",
       "Read(//Users/kc/.claude/**)",
       "Bash(echo:*)",
-      "Bash(export:*)"
+      "Bash(export:*)",
+      "Bash(git commit:*)",
+      "Bash(git log:*)",
+      "Bash(git pull:*)",
+      "Bash(grep -r accent src/app/globals.css tailwind.config.*)"
     ]
   }
 }

@@ -1,34 +1,13 @@
 "use client";
 
 import { useMemo } from "react";
-import { Card } from "@/components/common";
-import { formatToKoreanWon } from "@/lib/utils/format";
+import { Card, DataRow } from "@/components/common";
+import { formatWon } from "@/lib/utils/format";
 import { calculateTotalInitialCost } from "@/lib/calculation/tax";
 
 interface TaxBreakdownCardProps {
   purchasePrice: number;
   numberOfHomes: number;
-}
-
-function Row({
-  label,
-  value,
-  bold = false,
-}: {
-  label: string;
-  value: number;
-  bold?: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-sm text-secondary">{label}</span>
-      <span
-        className={`text-sm ${bold ? "font-bold text-primary" : "font-semibold text-primary"}`}
-      >
-        {formatToKoreanWon(Math.round(value))}
-      </span>
-    </div>
-  );
 }
 
 export default function TaxBreakdownCard({
@@ -62,7 +41,7 @@ export default function TaxBreakdownCard({
         {/* 총 초기비용 히어로 */}
         <div className="rounded-[12px] bg-surface px-4 py-5 text-center">
           <p className="text-2xl font-bold text-accent">
-            {formatToKoreanWon(Math.round(result.totalUpfront))}
+            {formatWon(result.totalUpfront)}
           </p>
           <p className="mt-1 text-xs text-secondary">
             매매가 외 추가 필요금액
@@ -73,17 +52,17 @@ export default function TaxBreakdownCard({
         <div className="flex flex-col gap-2">
           <p className="text-sm font-semibold text-primary">취득세</p>
           <div className="flex flex-col gap-1.5 pl-2">
-            <Row
+            <DataRow
               label={`기본 취득세 (${(acquisitionTax.baseRate * 100).toFixed(1)}%)`}
               value={acquisitionTax.baseTax}
             />
-            <Row label="농어촌특별세" value={acquisitionTax.ruralTax} />
-            <Row label="지방교육세" value={acquisitionTax.localEducationTax} />
+            <DataRow label="농어촌특별세" value={acquisitionTax.ruralTax} />
+            <DataRow label="지방교육세" value={acquisitionTax.localEducationTax} />
           </div>
           <div className="flex items-center justify-between pl-2">
             <span className="text-sm font-bold text-primary">소계</span>
             <span className="text-sm font-bold text-primary">
-              {formatToKoreanWon(Math.round(acquisitionTax.totalAcquisitionTax))}
+              {formatWon(acquisitionTax.totalAcquisitionTax)}
             </span>
           </div>
         </div>
@@ -91,7 +70,7 @@ export default function TaxBreakdownCard({
         <div className="border-t border-border" />
 
         {/* 중개수수료 */}
-        <Row
+        <DataRow
           label={`중개수수료 (${(brokerageFee.feeRate * 100).toFixed(1)}%)`}
           value={brokerageFee.brokerageFee}
           bold
@@ -103,20 +82,18 @@ export default function TaxBreakdownCard({
         <div className="flex flex-col gap-2">
           <p className="text-sm font-semibold text-primary">등기비용</p>
           <div className="flex flex-col gap-1.5 pl-2">
-            <Row label="등록면허세" value={registrationCost.registrationTax} />
-            <Row
+            <DataRow label="등록면허세" value={registrationCost.registrationTax} />
+            <DataRow
               label="지방교육세"
               value={registrationCost.localEducationTax}
             />
-            <Row label="인지세" value={registrationCost.stampTax} />
-            <Row label="법무사 수수료" value={registrationCost.lawyerFee} />
+            <DataRow label="인지세" value={registrationCost.stampTax} />
+            <DataRow label="법무사 수수료" value={registrationCost.lawyerFee} />
           </div>
           <div className="flex items-center justify-between pl-2">
             <span className="text-sm font-bold text-primary">소계</span>
             <span className="text-sm font-bold text-primary">
-              {formatToKoreanWon(
-                Math.round(registrationCost.totalRegistrationCost),
-              )}
+              {formatWon(registrationCost.totalRegistrationCost)}
             </span>
           </div>
         </div>
@@ -128,7 +105,7 @@ export default function TaxBreakdownCard({
               실제 필요 총액
             </span>
             <span className="text-lg font-bold text-primary">
-              {formatToKoreanWon(Math.round(result.totalRequired))}
+              {formatWon(result.totalRequired)}
             </span>
           </div>
           <p className="mt-2 text-xs text-secondary">

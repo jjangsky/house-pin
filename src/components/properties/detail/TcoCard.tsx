@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { Card } from "@/components/common";
-import { formatToKoreanWon } from "@/lib/utils/format";
+import { Card, DataRow } from "@/components/common";
+import { formatWon } from "@/lib/utils/format";
 import { calculateTco } from "@/lib/calculation/tco";
 import type { TcoInput } from "@/types/tax";
 
@@ -12,29 +12,6 @@ interface TcoCardProps {
   area: number;
   monthlyLoanPayment: number;
   annualLoanInterest: number;
-}
-
-function CostRow({
-  label,
-  value,
-  sub,
-}: {
-  label: string;
-  value: number;
-  sub?: boolean;
-}) {
-  return (
-    <div className={`flex items-center justify-between ${sub ? "pl-3" : ""}`}>
-      <span className={`text-sm ${sub ? "text-secondary" : "text-primary"}`}>
-        {label}
-      </span>
-      <span
-        className={`text-sm font-semibold ${sub ? "text-secondary" : "text-primary"}`}
-      >
-        {formatToKoreanWon(Math.round(value))}
-      </span>
-    </div>
-  );
 }
 
 export default function TcoCard({
@@ -63,12 +40,12 @@ export default function TcoCard({
         <div className="rounded-[12px] bg-accent-light px-4 py-5 text-center">
           <p className="text-xs font-medium text-accent">첫 해 총 비용</p>
           <p className="mt-1 text-2xl font-bold text-accent">
-            {formatToKoreanWon(Math.round(tco.firstYearTotal))}
+            {formatWon(tco.firstYearTotal)}
           </p>
           <p className="mt-2 text-xs text-secondary">
             월 환산{" "}
             <span className="font-semibold text-primary">
-              {formatToKoreanWon(Math.round(tco.monthlyRecurringTotal))}
+              {formatWon(tco.monthlyRecurringTotal)}
             </span>
             {" "}(반복 비용 기준)
           </p>
@@ -79,26 +56,26 @@ export default function TcoCard({
           <div className="flex items-center justify-between">
             <p className="text-sm font-bold text-primary">1회성 비용</p>
             <span className="text-sm font-bold text-primary">
-              {formatToKoreanWon(Math.round(tco.oneTimeCosts.total))}
+              {formatWon(tco.oneTimeCosts.total)}
             </span>
           </div>
           <div className="flex flex-col gap-1.5">
-            <CostRow
+            <DataRow
               label="취득세 (부가세 포함)"
               value={tco.oneTimeCosts.acquisitionTax}
               sub
             />
-            <CostRow
+            <DataRow
               label="등기비용"
               value={tco.oneTimeCosts.registrationCost}
               sub
             />
-            <CostRow
+            <DataRow
               label="중개수수료"
               value={tco.oneTimeCosts.brokerageFee}
               sub
             />
-            <CostRow
+            <DataRow
               label="이사비용 (추정)"
               value={tco.oneTimeCosts.movingCost}
               sub
@@ -113,21 +90,21 @@ export default function TcoCard({
           <div className="flex items-center justify-between">
             <p className="text-sm font-bold text-primary">매월 반복 비용</p>
             <span className="text-sm font-bold text-primary">
-              {formatToKoreanWon(Math.round(tco.monthlyCosts.total))}
+              {formatWon(tco.monthlyCosts.total)}
             </span>
           </div>
           <div className="flex flex-col gap-1.5">
-            <CostRow
+            <DataRow
               label="대출 상환"
               value={tco.monthlyCosts.loanPayment}
               sub
             />
-            <CostRow
+            <DataRow
               label="관리비 (추정)"
               value={tco.monthlyCosts.maintenanceFee}
               sub
             />
-            <CostRow
+            <DataRow
               label="보유세 (월 환산)"
               value={tco.monthlyCosts.holdingTax}
               sub
