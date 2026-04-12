@@ -2,16 +2,62 @@
 
 ## 프로젝트 개요
 "내 자산으로 살 수 있는 집을 찾아주는" 자산 기반 부동산 매물 추천 서비스.
-Next.js 풀스택 MVP. DB 없이 API 직접 호출 + 클라이언트 상태 관리.
+모노레포 구조: Next.js 프론트엔드 + Spring Boot 백엔드.
+
+## 모노레포 구조
+```
+house-pin/
+├── frontend/              # Next.js (Vercel 배포)
+│   ├── src/
+│   ├── package.json
+│   └── ...
+├── backend/               # Spring Boot API 서버
+│   ├── src/main/java/com/housepin/api/
+│   ├── build.gradle
+│   └── ...
+├── docs/                  # 기획문서
+│   └── specs/             # 상세 명세서
+├── docker-compose.yml     # 로컬 PostgreSQL
+└── CLAUDE.md
+```
 
 ## 기술 스택
+
+### Frontend (`frontend/`)
 - **Framework**: Next.js 16 (App Router, `src/app/`)
 - **Language**: TypeScript (strict mode)
 - **Styling**: Tailwind CSS 4
 - **State**: Zustand
 - **Test**: Vitest
 - **Package Manager**: pnpm
-- **Deploy**: Vercel
+- **Deploy**: Vercel (Root Directory: `frontend`)
+
+### Backend (`backend/`)
+- **Framework**: Spring Boot 3.4 (Java 17)
+- **Architecture**: DDD + CQRS (JPA 쓰기 / QueryDSL 읽기)
+- **DB**: PostgreSQL 16
+- **Migration**: Flyway
+- **Cache**: Caffeine (로컬 캐시)
+- **API Docs**: SpringDoc OpenAPI (Swagger)
+- **Build**: Gradle
+
+### Backend 패키지 구조
+```
+com.housepin.api/
+├── domain/                # 도메인 레이어 (Entity, VO, Repository 인터페이스)
+│   ├── common/            # Money, Coordinates, RegionCode (Value Objects)
+│   ├── property/          # PropertyTrade 엔티티
+│   ├── region/            # Region 엔티티
+│   ├── complex/           # Complex 엔티티
+│   └── collection/        # CollectionLog 엔티티
+├── infrastructure/        # 인프라 레이어 (구현체)
+│   ├── config/            # Spring 설정 (CORS, QueryDSL, Cache, Scheduler)
+│   └── persistence/       # QueryDSL Repository 구현체
+└── presentation/          # 프레젠테이션 레이어 (Controller, DTO)
+    ├── common/            # ApiResponse, GlobalExceptionHandler
+    ├── property/          # 매물 API
+    └── region/            # 지역 API
+```
 
 ## 디자인 원칙
 
@@ -48,7 +94,7 @@ Small:     12px / regular (법적 고지 등)
 ```
 
 ### 컴포넌트 규칙
-- 모든 UI는 `src/components/common/` 공통 컴포넌트를 조합하여 구성.
+- 모든 UI는 `frontend/src/components/common/` 공통 컴포넌트를 조합하여 구성.
 - 공통 컴포넌트 없이 직접 HTML 태그에 스타일 넣지 않는다.
 - 컴포넌트는 단일 책임. 하나의 컴포넌트가 너무 많은 일을 하지 않는다.
 - Props는 명확한 타입 정의. `any` 사용 금지.
@@ -56,11 +102,11 @@ Small:     12px / regular (법적 고지 등)
 
 ## 코드 규칙
 
-### 파일/폴더 구조
+### Frontend 파일/폴더 구조
 ```
-src/
+frontend/src/
 ├── app/                    # 라우트 (페이지)
-│   ├── api/                # API Routes
+│   ├── api/                # API Routes (BFF)
 │   ├── input/              # 자산 입력
 │   ├── result/             # 대출 계산 결과
 │   ├── region/             # 지역 선택
@@ -85,8 +131,9 @@ src/
 - 유틸/훅: camelCase (`formatCurrency.ts`, `useLoanCalculation.ts`)
 - 상수: UPPER_SNAKE_CASE (`MAX_LOAN_AMOUNT`)
 - 타입/인터페이스: PascalCase, `I` 접두사 없음 (`LoanResult`, not `ILoanResult`)
+- Java 클래스: PascalCase, DDD 레이어 명확히 구분
 
-### Import 순서
+### Import 순서 (Frontend)
 1. React/Next.js
 2. 외부 라이브러리
 3. `@/components`
@@ -99,18 +146,30 @@ src/
 - 내부 데이터: 만원 단위 (API 원본 유지)
 - 화면 표시: 억/만원 변환 ("4억 2,000만 원")
 - 입력: 만원 단위 + 콤마 포맷팅
-- 변환 함수는 `src/lib/utils/format.ts`에서 관리
+- 변환 함수는 `frontend/src/lib/utils/format.ts`에서 관리
+- 백엔드 Money VO: 만원 단위, `toEok()` 메서드로 포맷팅
 
 ## 테스트 규칙
-- 계산 로직(`src/lib/calculation/`)은 반드시 단위 테스트 작성
-- 테스트 파일: 소스 파일과 같은 위치에 `.test.ts` 확장자
-- 테스트 프레임워크: Vitest
+- 프론트엔드: 계산 로직은 반드시 단위 테스트 (Vitest), `.test.ts` 확장자
+- 백엔드: 도메인 로직 단위 테스트, 통합 테스트는 `@SpringBootTest`
 - 커버리지 목표: 계산 로직 90% 이상
 
 ## 커밋 규칙
 - 한글 커밋 메시지
-- 이슈 번호 연결: `[Step 1-1] 폴더 구조 설계 (#1)`
+- 이슈 번호 연결: `[Phase 2-1] Spring Boot 프로젝트 초기 셋업 (#69)`
 - 서브 챕터별로 커밋 분리
+
+## 로컬 개발
+```bash
+# PostgreSQL 실행
+docker compose up -d
+
+# 백엔드
+cd backend && ./gradlew bootRun --args='--spring.profiles.active=local'
+
+# 프론트엔드
+cd frontend && pnpm dev
+```
 
 ## MVP 플로우
 ```
