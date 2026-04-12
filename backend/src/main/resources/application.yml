@@ -18,6 +18,15 @@ spring:
 server:
   port: 8080
 
+molit:
+  api:
+    base-url: https://apis.data.go.kr/1613000
+    service-key: ${DATA_GO_KR_API_KEY:}
+    num-of-rows: 1000
+    timeout-seconds: 10
+    max-retries: 3
+    request-delay-ms: 200
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

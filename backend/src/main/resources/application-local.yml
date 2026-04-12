@@ -9,6 +9,10 @@ spring:
 cors:
   allowed-origins: http://localhost:3000
 
+molit:
+  api:
+    service-key: ${DATA_GO_KR_API_KEY:test-key}
+
 logging:
   level:
     com.housepin: DEBUG
