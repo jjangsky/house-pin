@@ -56,10 +56,10 @@ public class PropertyTrade {
     private BigDecimal area;
 
     @Column(name = "floor")
-    private short floor;
+    private Short floor;
 
     @Column(name = "build_year")
-    private short buildYear;
+    private Short buildYear;
 
     @Column(name = "deal_date", nullable = false)
     private LocalDate dealDate;
@@ -100,7 +100,7 @@ public class PropertyTrade {
     public static PropertyTrade create(String regionCode, PropertyType propertyType,
                                        TradeType tradeType, String name, String dong,
                                        String jibun, int dealAmountManWon,
-                                       BigDecimal area, short floor, short buildYear,
+                                       BigDecimal area, Short floor, Short buildYear,
                                        LocalDate dealDate, String rawData) {
         PropertyTrade trade = new PropertyTrade();
         trade.regionCode = regionCode;
