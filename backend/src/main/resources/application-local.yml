@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/housepin
+    username: housepin
+    password: housepin
+  jpa:
+    show-sql: true
+
+cors:
+  allowed-origins: http://localhost:3000
+
+logging:
+  level:
+    com.housepin: DEBUG
+    org.hibernate.SQL: DEBUG
