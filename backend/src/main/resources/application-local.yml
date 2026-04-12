@@ -13,6 +13,10 @@ molit:
   api:
     service-key: ${DATA_GO_KR_API_KEY:test-key}
 
+kakao:
+  geocode:
+    rest-api-key: ${KAKAO_REST_API_KEY:test-key}
+
 logging:
   level:
     com.housepin: DEBUG

@@ -10,7 +10,7 @@ import org.springframework.web.client.RestClient;
 @EnableConfigurationProperties(MolitApiProperties.class)
 public class MolitClientConfig {
 
-    @Bean
+    @Bean("molitRestClient")
     public RestClient molitRestClient(MolitApiProperties properties) {
         return RestClient.builder()
                 .baseUrl(properties.baseUrl())

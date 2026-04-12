@@ -27,6 +27,14 @@ molit:
     max-retries: 3
     request-delay-ms: 200
 
+kakao:
+  geocode:
+    base-url: https://dapi.kakao.com
+    timeout-seconds: 5
+    batch-size: 100
+    concurrency: 5
+    request-delay-ms: 100
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
